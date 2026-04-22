@@ -12,10 +12,18 @@ class RequestCategoryController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $categories = RequestCategory::with('requestType', 'subcategories')->paginate(10);
-        return view('admin.utilities.request-categories.index', compact('categories'));
+        $query = RequestCategory::with('requestType', 'subcategories');
+        $requestTypes = RequestType::all();
+        $selectedType = $request->get('type_id');
+
+        if ($selectedType) {
+            $query->where('request_type_id', $selectedType);
+        }
+
+        $categories = $query->paginate(10);
+        return view('admin.utilities.request-categories.index', compact('categories', 'requestTypes', 'selectedType'));
     }
 
     /**

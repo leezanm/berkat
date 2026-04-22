@@ -29,6 +29,35 @@
         </div>
     @endif
 
+    <!-- Filter Section -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="GET" action="{{ route('admin.request-subcategories.index') }}" class="d-flex flex-column flex-md-row gap-3 align-items-md-center">
+                <div class="flex-grow-1">
+                    <label for="category_id" class="form-label mb-2 mb-md-0"><i class="fas fa-filter"></i> Penapis Kategori</label>
+                    <select id="category_id" name="category_id" class="form-select">
+                        <option value="">Semua Kategori</option>
+                        @foreach($categories as $category)
+                            <option value="{{ $category->id }}" {{ $selectedCategory == $category->id ? 'selected' : '' }}>
+                                {{ $category->requestType->name }} - {{ $category->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="d-flex gap-2 pt-2 pt-md-3">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-search"></i> Tapis
+                    </button>
+                    @if($selectedCategory)
+                        <a href="{{ route('admin.request-subcategories.index') }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-times-circle"></i> Reset
+                        </a>
+                    @endif
+                </div>
+            </form>
+        </div>
+    </div>
+
     <div class="card">
         <div class="table-responsive">
             <table class="table table-hover mb-0">

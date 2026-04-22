@@ -161,7 +161,7 @@
                     </div>
                 </div>
 
-                <div class="card mb-0">
+                {{-- <div class="card mb-0">
                     <div class="card-header">
                         <h5 class="mb-0"><i class="fas fa-cogs"></i> Utiliti Pentadbiran</h5>
                     </div>
@@ -182,7 +182,7 @@
                             </a>
                         </div>
                     </div>
-                </div>
+                </div> --}}
             </div>
         </div>
     </div>

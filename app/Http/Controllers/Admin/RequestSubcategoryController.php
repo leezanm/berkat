@@ -12,10 +12,18 @@ class RequestSubcategoryController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $subcategories = RequestSubcategory::with('category.requestType')->paginate(10);
-        return view('admin.utilities.request-subcategories.index', compact('subcategories'));
+        $query = RequestSubcategory::with('category.requestType');
+        $categories = RequestCategory::all();
+        $selectedCategory = $request->get('category_id');
+
+        if ($selectedCategory) {
+            $query->where('request_category_id', $selectedCategory);
+        }
+
+        $subcategories = $query->paginate(10);
+        return view('admin.utilities.request-subcategories.index', compact('subcategories', 'categories', 'selectedCategory'));
     }
 
     /**

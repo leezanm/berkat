@@ -758,6 +758,17 @@
                         <li class="nav-item">
                             <a class="nav-link" href="{{ route('assistance-requests.create') }}">Permohonan Baru</a>
                         </li>
+                        {{-- menu utiliti --}}
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="utilitiesDropdown" role="button" data-bs-toggle="dropdown">
+                                Utiliti
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="utilitiesDropdown">
+                                <li><a class="dropdown-item" href="{{ route('admin.request-types.index') }}">Urus Jenis Bantuan</a></li>
+                                <li><a class="dropdown-item" href="{{ route('admin.request-categories.index') }}">Urus Kategori Bantuan</a></li>
+                                <li><a class="dropdown-item" href="{{ route('admin.request-subcategories.index') }}">Urus Sub-Kategori & Amaun</a></li>
+                            </ul>
+                        </li>
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
                                 {{ Auth::user()->name }}
