@@ -34,19 +34,23 @@
         <div class="card-body">
             <form method="GET" action="{{ route('admin.request-subcategories.index') }}" class="d-flex flex-column flex-md-row gap-3 align-items-md-center">
                 <div class="flex-grow-1">
-                    <label for="category_id" class="form-label mb-2 mb-md-0"><i class="fas fa-filter"></i> Penapis Kategori</label>
+                    <label for="category_id" class="form-label mb-2 mb-md-0"><i class="fas fa-filter"></i> Carian Kategori</label>
                     <select id="category_id" name="category_id" class="form-select">
                         <option value="">Semua Kategori</option>
                         @foreach($categories as $category)
                             <option value="{{ $category->id }}" {{ $selectedCategory == $category->id ? 'selected' : '' }}>
-                                {{ $category->requestType->name }} - {{ $category->name }}
+                                @if($category->requestType)
+                                    {{ $category->requestType->name }} - {{ $category->name }}
+                                @else
+                                    {{ $category->name }} (Jenis Tidak Tersedia)
+                                @endif
                             </option>
                         @endforeach
                     </select>
                 </div>
                 <div class="d-flex gap-2 pt-2 pt-md-3">
                     <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-search"></i> Tapis
+                        <i class="fas fa-search"></i> Carian
                     </button>
                     @if($selectedCategory)
                         <a href="{{ route('admin.request-subcategories.index') }}" class="btn btn-outline-secondary">
@@ -74,9 +78,15 @@
                     @forelse($subcategories as $subcategory)
                         <tr>
                             <td>{{ $subcategory->id }}</td>
-                            <td><span class="badge bg-secondary">{{ $subcategory->category->name }}</span></td>
-                            <td>{{ $subcategory->name }}</td>
                             <td>
+                                @if($subcategory->category)
+                                    <span class="badge bg-secondary">{{ $subcategory->category->name }}</span>
+                                @else
+                                    <span class="badge bg-warning text-dark">Kategori Tidak Tersedia</span>
+                                @endif
+                            </td>
+                            <td>{{ $subcategory->name }}</td>
+                            <td></td>
                                 @if($subcategory->amount)
                                     <span class="badge bg-success">{{ number_format($subcategory->amount, 2) }}</span>
                                 @else

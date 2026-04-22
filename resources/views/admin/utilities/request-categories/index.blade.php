@@ -74,7 +74,13 @@
                     @forelse($categories as $category)
                         <tr>
                             <td>{{ $category->id }}</td>
-                            <td><span class="badge bg-secondary">{{ $category->requestType->name }}</span></td>
+                            <td>
+                                @if($category->requestType)
+                                    <span class="badge bg-secondary">{{ $category->requestType->name }}</span>
+                                @else
+                                    <span class="badge bg-warning text-dark">Jenis Tidak Tersedia</span>
+                                @endif
+                            </td>
                             <td>{{ $category->name }}</td>
                             <td><span class="badge bg-info">{{ $category->subcategories()->count() }}</span></td>
                             <td>
