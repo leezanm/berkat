@@ -75,7 +75,7 @@
                                         data-staff-email="{{ $agent->staff_email }}"
                                         data-staff-mobile="{{ $agent->staff_mobile }}"
                                         data-office-phone="{{ $agent->office_phone }}">
-                                        {{ $agent->user->name }} - {{ $agent->office_name }}
+                                        {{ $agent->staff_name }} - {{ $agent->accounting_office }}
                                     </option>
                                 @empty
                                     <option value="" disabled>Tiada agen aktif tersedia</option>

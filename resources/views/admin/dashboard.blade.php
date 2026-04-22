@@ -160,6 +160,29 @@
                         @endforeach
                     </div>
                 </div>
+
+                <div class="card mb-0">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="fas fa-cogs"></i> Utiliti Pentadbiran</h5>
+                    </div>
+                    <div class="card-body section-stack">
+                        <div class="detail-item">
+                            <a href="{{ route('admin.request-types.index') }}" class="btn btn-outline-primary w-100 justify-content-start">
+                                <i class="fas fa-list me-2"></i> Urus Jenis Bantuan
+                            </a>
+                        </div>
+                        <div class="detail-item">
+                            <a href="{{ route('admin.request-categories.index') }}" class="btn btn-outline-primary w-100 justify-content-start">
+                                <i class="fas fa-folder me-2"></i> Urus Kategori Bantuan
+                            </a>
+                        </div>
+                        <div class="detail-item">
+                            <a href="{{ route('admin.request-subcategories.index') }}" class="btn btn-outline-primary w-100 justify-content-start">
+                                <i class="fas fa-tags me-2"></i> Urus Sub-Kategori & Amaun
+                            </a>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
