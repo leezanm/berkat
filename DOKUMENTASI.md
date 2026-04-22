@@ -238,6 +238,25 @@ Sistem BERKAT mendukung **5 jenis permohonan utama**:
 id, name, email, password, role (member|agent|jk|admin), created_at, updated_at
 ```
 
+#### `agents`
+```sql
+id, user_id (unique, foreign key to users),
+office_name, office_address, office_phone, office_email,
+designation, description,
+status (active|inactive|on_leave|suspended),
+remarks, registered_by (admin user_id),
+registered_at, verified_at, last_activity_at,
+requests_verified_count, created_at, updated_at
+```
+
+**Penjelasan Jadual Agents:**
+- Profil terperinci untuk pengguna dengan role 'agent'
+- Satu pengguna boleh mempunyai satu profil agen (one-to-one relationship)
+- `registered_by` mencatat admin yang mendaftarkan agen
+- `status` mengawal aktiviti agen (active, inactive, on_leave, suspended)
+- `requests_verified_count` melacak bilangan permohonan yang telah disahkan
+- Memungkinkan manajemen independen dari data autentikasi pengguna
+
 #### `assistance_requests`
 ```sql
 id, user_id, request_type_id, request_category_id, request_subcategory_id,
@@ -247,7 +266,7 @@ household_income, dependents_count, disabled_dependents_count,
 spouse_name, spouse_ic, spouse_salary, spouse_position,
 status, agent_verification, approved_amount, rejection_reason,
 approved_at, jk_recommendation, jk_recommendation_status,
-submitted_at, agent_id, agent_filled, created_at, updated_at
+submitted_at, agent_id (foreign key to agents), agent_filled, created_at, updated_at
 ```
 
 #### `request_types`
@@ -280,15 +299,22 @@ id, assistance_request_id, field_name, field_value, created_at, updated_at
 ```
 User
   ├── hasMany AssistanceRequest (as requester)
-  ├── hasMany AssistanceRequest (as agent_id) [for agents]
+  ├── hasOne Agent (as agent profile)
+  ├── hasMany Agent (as registered_by - admin)
   └── role: member|agent|jk|admin
+
+Agent
+  ├── belongsTo User (user_id)
+  ├── belongsTo User (registered_by - admin user)
+  ├── hasMany AssistanceRequest (verified requests)
+  └── status: active|inactive|on_leave|suspended
 
 AssistanceRequest
   ├── belongsTo User (user_id)
   ├── belongsTo RequestType
   ├── belongsTo RequestCategory
   ├── belongsTo RequestSubcategory
-  ├── belongsTo User (agent_id)
+  ├── belongsTo Agent (agent_id)
   ├── hasMany RequestDetail
   └── hasMany AssistanceRequestDocument
 
@@ -364,6 +390,40 @@ RequestCategory
 4. Jika luluskan: Masukkan jumlah bantuan akhir
 5. Simpan keputusan
 ```
+
+**3. Mengurusan Agen**
+```
+1. Klik "Pengurusan Agen" (Admin menu)
+2. Lihat senarai semua agen dengan status
+3. Untuk mendaftarkan agen baru:
+   - Klik "Daftar Agen Baru"
+   - Masukkan maklumat pengguna
+   - Isi maklumat pejabat agen
+   - Tentukan status (active/inactive/on_leave/suspended)
+   - Simpan profil agen
+4. Untuk mengemas kini status:
+   - Klik agen dalam senarai
+   - Ubah status agen
+   - Simpan perubahan
+5. Lihat statistik agen:
+   - Bilangan permohonan disahkan
+   - Aktiviti terakhir
+   - Status pengesahan
+```
+
+### Pengurusan Agen
+
+**Model Agent:**
+- Setiap agen adalah pengguna sistem dengan role 'agent'
+- Memiliki profil agen terpisah dengan maklumat pejabat
+- Didaftarkan oleh Pentadbir
+- Boleh dipantau status aktiviti dan pengesahan
+
+**Status Agen:**
+- `active` - Agen aktif dan boleh mengesahkan permohonan
+- `inactive` - Agen tidak aktif
+- `on_leave` - Agen sedang cuti
+- `suspended` - Agen digantung sementara
 
 ---
 

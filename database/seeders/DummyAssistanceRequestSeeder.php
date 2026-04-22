@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Agent;
 use App\Models\AssistanceRequest;
 use App\Models\AssistanceRequestDocument;
 use App\Models\RequestType;
@@ -49,15 +50,14 @@ class DummyAssistanceRequestSeeder extends Seeder
         $memberTwo = $members[1];
         $memberThree = $members[2];
 
-        $agent = User::firstOrCreate(
-            ['email' => 'agent@berkat.com'],
-            ['name' => 'Agen BERKAT', 'password' => bcrypt('password'), 'role' => 'agent']
-        );
-
-        $agent2 = User::firstOrCreate(
-            ['email' => 'agent2@berkat.com'],
-            ['name' => 'Agen BERKAT 2', 'password' => bcrypt('password'), 'role' => 'agent']
-        );
+        // Dapatkan Agents dari table agents, bukan users
+        $agent = Agent::first();
+        $agent2 = Agent::skip(1)->first();
+        
+        // Jika tiada agents, return untuk mengelakkan error
+        if (!$agent || !$agent2) {
+            return;
+        }
 
         $typeMap = RequestType::with('categories.subcategories')->get()->keyBy('name');
 

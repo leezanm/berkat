@@ -54,7 +54,18 @@ class AssistanceRequest extends Model
         return $this->hasMany(AssistanceRequestDocument::class);
     }
 
+    /**
+     * Hubungan ke Agent yang mengesahkan permohonan
+     */
     public function agent()
+    {
+        return $this->belongsTo(Agent::class, 'agent_id');
+    }
+
+    /**
+     * Hubungan ke User melalui Agent (untuk mendapatkan maklumat pengguna agen)
+     */
+    public function agentUser()
     {
         return $this->belongsTo(User::class, 'agent_id');
     }
