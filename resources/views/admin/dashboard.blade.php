@@ -167,6 +167,11 @@
                     </div>
                     <div class="card-body section-stack">
                         <div class="detail-item">
+                            <a href="{{ route('admin.agents.index') }}" class="btn btn-outline-primary w-100 justify-content-start">
+                                <i class="fas fa-user-tie me-2"></i> Urus Agen
+                            </a>
+                        </div>
+                        <div class="detail-item">
                             <a href="{{ route('admin.request-types.index') }}" class="btn btn-outline-primary w-100 justify-content-start">
                                 <i class="fas fa-list me-2"></i> Urus Jenis Bantuan
                             </a>

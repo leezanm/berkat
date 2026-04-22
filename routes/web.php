@@ -6,6 +6,7 @@ use App\Http\Controllers\AssistanceRequestController;
 use App\Http\Controllers\Admin\RequestTypeController;
 use App\Http\Controllers\Admin\RequestCategoryController;
 use App\Http\Controllers\Admin\RequestSubcategoryController;
+use App\Http\Controllers\Admin\AgentController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\LogoutController;
 
@@ -32,6 +33,7 @@ Route::middleware(['auth'])->group(function () {
 
     // Admin Utilities Routes
     Route::prefix('admin/utilities')->name('admin.')->group(function () {
+        Route::resource('agents', AgentController::class);
         Route::resource('request-types', RequestTypeController::class);
         Route::resource('request-categories', RequestCategoryController::class);
         Route::resource('request-subcategories', RequestSubcategoryController::class);
