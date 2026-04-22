@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Agent;
 use App\Models\AssistanceRequestDocument;
 use App\Models\AssistanceRequest;
+use App\Models\AssistanceRequestChild;
 use App\Models\RequestType;
 use App\Models\RequestCategory;
 use Illuminate\Http\Request;
@@ -91,9 +92,16 @@ class AssistanceRequestController extends Controller
             'spouse_salary' => 'nullable|numeric',
             'spouse_position' => 'nullable|string',
             'agent_id' => 'required|exists:agents,id',
+            'children' => 'nullable|array',
+            'children.*.child_name' => 'required_with:children|string|max:255',
+            'children.*.child_ic' => 'nullable|string|max:12',
+            'children.*.age' => 'nullable|integer|min:0|max:25',
+            'children.*.school_name' => 'nullable|string|max:255',
         ] + $this->documentValidationRules((int) $request->input('request_category_id')));
 
         unset($validated['documents']);
+        $childrenData = $validated['children'] ?? [];
+        unset($validated['children']);
 
         $validated = $this->normalizeAssistanceRequestData($validated);
 
@@ -101,6 +109,22 @@ class AssistanceRequestController extends Controller
         $validated['status'] = 'draft';
 
         $assistanceRequest = AssistanceRequest::create($validated);
+
+        // Store child information if provided
+        if (!empty($childrenData)) {
+            foreach ($childrenData as $childData) {
+                if (!empty($childData['child_name'])) {
+                    AssistanceRequestChild::create([
+                        'assistance_request_id' => $assistanceRequest->id,
+                        'child_name' => $childData['child_name'],
+                        'child_ic' => $childData['child_ic'] ?? null,
+                        'age' => $childData['age'] ?? null,
+                        'school_name' => $childData['school_name'] ?? null,
+                    ]);
+                }
+            }
+        }
+
         $this->syncDocuments($request, $assistanceRequest);
 
         return redirect()->route('assistance-requests.show', $assistanceRequest)
@@ -116,7 +140,7 @@ class AssistanceRequestController extends Controller
             abort(403);
         }
 
-        $assistanceRequest->load(['documents', 'requestType', 'category', 'subcategory', 'agent']);
+        $assistanceRequest->load(['documents', 'children', 'requestType', 'category', 'subcategory', 'agent']);
 
         return view('assistance-requests.show', compact('assistanceRequest'));
     }
@@ -136,7 +160,7 @@ class AssistanceRequestController extends Controller
         $agents = Agent::where('status', 'active')->with('user')->get();
         $documentRequirements = config('assistance_documents.categories', []);
 
-        $assistanceRequest->load('documents');
+        $assistanceRequest->load('documents', 'children');
 
         return view('assistance-requests.edit', compact('assistanceRequest', 'requestTypes', 'categories', 'agents', 'documentRequirements'));
     }
@@ -172,13 +196,37 @@ class AssistanceRequestController extends Controller
             'spouse_salary' => 'nullable|numeric',
             'spouse_position' => 'nullable|string',
             'agent_id' => 'required|exists:agents,id',
+            'children' => 'nullable|array',
+            'children.*.child_name' => 'required_with:children|string|max:255',
+            'children.*.child_ic' => 'nullable|string|max:12',
+            'children.*.age' => 'nullable|integer|min:0|max:25',
+            'children.*.school_name' => 'nullable|string|max:255',
         ] + $this->documentValidationRules((int) $request->input('request_category_id'), $assistanceRequest));
 
         unset($validated['documents']);
+        $childrenData = $validated['children'] ?? [];
+        unset($validated['children']);
 
         $validated = $this->normalizeAssistanceRequestData($validated);
 
         $assistanceRequest->update($validated);
+
+        // Update child information
+        $assistanceRequest->children()->delete(); // Remove old records
+        if (!empty($childrenData)) {
+            foreach ($childrenData as $childData) {
+                if (!empty($childData['child_name'])) {
+                    AssistanceRequestChild::create([
+                        'assistance_request_id' => $assistanceRequest->id,
+                        'child_name' => $childData['child_name'],
+                        'child_ic' => $childData['child_ic'] ?? null,
+                        'age' => $childData['age'] ?? null,
+                        'school_name' => $childData['school_name'] ?? null,
+                    ]);
+                }
+            }
+        }
+
         $this->syncDocuments($request, $assistanceRequest);
 
         return redirect()->route('assistance-requests.show', $assistanceRequest)

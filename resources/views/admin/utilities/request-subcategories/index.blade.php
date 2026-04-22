@@ -80,17 +80,21 @@
                             <td>{{ $subcategory->id }}</td>
                             <td>
                                 @if($subcategory->category)
-                                    <span class="badge bg-secondary">{{ $subcategory->category->name }}</span>
+                                    @if($subcategory->category->requestType)
+                                        <span class="badge bg-secondary">{{ $subcategory->category->requestType->name }} - {{ $subcategory->category->name }}</span>
+                                    @else
+                                        <span class="badge bg-warning text-dark">{{ $subcategory->category->name }} (Jenis Tidak Tersedia)</span>
+                                    @endif
                                 @else
                                     <span class="badge bg-warning text-dark">Kategori Tidak Tersedia</span>
                                 @endif
                             </td>
                             <td>{{ $subcategory->name }}</td>
-                            <td></td>
+                            <td>
                                 @if($subcategory->amount)
                                     <span class="badge bg-success">{{ number_format($subcategory->amount, 2) }}</span>
                                 @else
-                                    <span class="badge bg-light text-dark">-</span>
+                                    <span class="badge bg-light text-dark">0.00</span>
                                 @endif
                             </td>
                             <td>

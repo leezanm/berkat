@@ -8,6 +8,7 @@ Sistem Permohonan Bantuan BERKAT adalah aplikasi web berbasis Laravel yang memud
 
 ### 1. Jenis Permohonan (5 Kategori Utama)
 - **Pendidikan** (Kemasukan Persekolahan, IPT, Kecemerlangan Peperiksaan)
+    
 - **Kesihatan** (Masuk Wad, Kesihatan Kronik, Alat Sokongan, Kecederaan)
 - **Kebajikan** (Bencana Alam, Kematian, Kesusahan, Program OKU)
 - **Sosial** (Perayaan, Pencapaian Antarabangsa)

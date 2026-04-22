@@ -54,6 +54,11 @@ class AssistanceRequest extends Model
         return $this->hasMany(AssistanceRequestDocument::class);
     }
 
+    public function children()
+    {
+        return $this->hasMany(AssistanceRequestChild::class, 'assistance_request_id');
+    }
+
     /**
      * Hubungan ke Agent yang mengesahkan permohonan
      */

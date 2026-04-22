@@ -280,6 +280,51 @@
                 </div>
             </div>
 
+            @if($assistanceRequest->children->isNotEmpty())
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="fas fa-child"></i> Maklumat Anak</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="section-stack">
+                            @foreach($assistanceRequest->children as $child)
+                                <div class="detail-item border p-3 rounded bg-light">
+                                    <h6 class="mb-3 fw-semibold"><i class="fas fa-user-circle"></i> Anak ke-{{ $loop->iteration }}</h6>
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <div class="detail-item">
+                                                <span class="detail-label">Nama Anak</span>
+                                                <p class="detail-value">{{ $child->child_name }}</p>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="detail-item">
+                                                <span class="detail-label">No. KP</span>
+                                                <p class="detail-value">{{ $child->child_ic ?? '-' }}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <div class="detail-item">
+                                                <span class="detail-label">Umur</span>
+                                                <p class="detail-value">{{ $child->age ? $child->age . ' tahun' : '-' }}</p>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="detail-item">
+                                                <span class="detail-label">Nama Sekolah/IPT</span>
+                                                <p class="detail-value">{{ $child->school_name ?? '-' }}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
+            @endif
+
             @php
                 $requiredDocuments = config('assistance_documents.categories.' . $assistanceRequest->category->name . '.documents', []);
                 $documentNotes = config('assistance_documents.categories.' . $assistanceRequest->category->name . '.notes', []);

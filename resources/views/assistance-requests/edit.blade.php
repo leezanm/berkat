@@ -218,9 +218,59 @@
                     </div>
                 </div>
 
+                <!-- Child Information Section (Conditional) -->
+                <div class="card mb-4" id="childrenSection" style="display: none;">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">C. MAKLUMAT ANAK (Jika Berkaitan)</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-hint mb-3">
+                            <i class="fas fa-info-circle"></i> Sila masukkan maklumat anak-anak yang berkaitan dengan permohonan bantuan ini.
+                        </div>
+
+                        <div id="childrenContainer" class="section-stack mb-3">
+                            @forelse($assistanceRequest->children as $child)
+                                <div class="detail-item border p-3 rounded mb-3 bg-light" id="child-row-{{ $loop->iteration }}">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <span class="fw-semibold">Anak ke-{{ $loop->iteration }}</span>
+                                        <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeChildRow({{ $loop->iteration }})">
+                                            <i class="fas fa-trash"></i> Buang
+                                        </button>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label"><i class="fas fa-signature"></i> Nama Anak <span class="text-danger">*</span></label>
+                                            <input type="text" class="form-control" name="children[{{ $loop->index }}][child_name]" value="{{ $child->child_name }}" required>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label"><i class="fas fa-id-card"></i> No. Kad Pengenalan</label>
+                                            <input type="text" class="form-control" name="children[{{ $loop->index }}][child_ic]" value="{{ $child->child_ic }}" maxlength="12">
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label"><i class="fas fa-birthday-cake"></i> Umur</label>
+                                            <input type="number" class="form-control" name="children[{{ $loop->index }}][age]" value="{{ $child->age }}" min="0" max="25">
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label"><i class="fas fa-school"></i> Nama Sekolah/IPT</label>
+                                            <input type="text" class="form-control" name="children[{{ $loop->index }}][school_name]" value="{{ $child->school_name }}">
+                                        </div>
+                                    </div>
+                                </div>
+                            @empty
+                            @endforelse
+                        </div>
+
+                        <button type="button" class="btn btn-sm btn-outline-primary" onclick="addChildRow()">
+                            <i class="fas fa-plus-circle"></i> Tambah Anak
+                        </button>
+                    </div>
+                </div>
+
                 <div class="card mb-4">
                     <div class="card-header bg-primary text-white">
-                        <h5 class="mb-0">C. DOKUMEN SOKONGAN</h5>
+                        <h5 class="mb-0">D. DOKUMEN SOKONGAN</h5>
                     </div>
                     <div class="card-body">
                         <div id="documentRequirementsContainer" class="section-stack"></div>
@@ -334,6 +384,7 @@ function loadCategories(selectedCategoryId = '') {
         document.getElementById('request_category_id').innerHTML = '<option value="">Pilih Kategori Permohonan</option>';
         document.getElementById('request_subcategory_id').innerHTML = '<option value="">Pilih Sub Kategori Permohonan</option>';
         renderDocumentRequirements();
+        toggleChildrenSection();
         return;
     }
 
@@ -347,6 +398,7 @@ function loadCategories(selectedCategoryId = '') {
             });
             document.getElementById('request_category_id').innerHTML = html;
             renderDocumentRequirements();
+            toggleChildrenSection();
 
             if (selectedCategoryId) {
                 loadSubcategories(oldSubcategoryId);
@@ -383,6 +435,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     renderDocumentRequirements();
+    toggleChildrenSection();
 
     // Display agent info if agent was previously selected
     const agentSelect = document.getElementById('agent_id');
@@ -412,6 +465,84 @@ function displayAgentInfo() {
     document.getElementById('agent-office-phone').textContent = selectedOption.dataset.officePhone || '-';
 
     display.style.display = 'block';
+}
+
+function toggleChildrenSection() {
+    const typeSelect = document.getElementById('request_type_id');
+    const selectedOption = typeSelect.options[typeSelect.selectedIndex];
+    const typeName = selectedOption ? selectedOption.text : '';
+    const childrenSection = document.getElementById('childrenSection');
+
+    // Types that require child information
+    const requiresChildren = ['Pendidikan', 'Kesihatan', 'Kematian', 'Sosial'];
+
+    if (requiresChildren.some(type => typeName.includes(type))) {
+        childrenSection.style.display = 'block';
+    } else {
+        childrenSection.style.display = 'none';
+        // Clear children data if type doesn't require it
+        document.getElementById('childrenContainer').innerHTML = '';
+    }
+}
+
+function addChildRow() {
+    const container = document.getElementById('childrenContainer');
+    const rowCount = container.children.length + 1;
+
+    const childRow = document.createElement('div');
+    childRow.className = 'detail-item border p-3 rounded mb-3 bg-light';
+    childRow.id = `child-row-${rowCount}`;
+    childRow.innerHTML = `
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <span class="fw-semibold">Anak ke-${rowCount}</span>
+            <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeChildRow(${rowCount})">
+                <i class="fas fa-trash"></i> Buang
+            </button>
+        </div>
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label class="form-label"><i class="fas fa-signature"></i> Nama Anak <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" name="children[${rowCount - 1}][child_name]" placeholder="Masukkan nama anak" required>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label class="form-label"><i class="fas fa-id-card"></i> No. Kad Pengenalan</label>
+                <input type="text" class="form-control" name="children[${rowCount - 1}][child_ic]" placeholder="Contoh: 123456789012" maxlength="12">
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label class="form-label"><i class="fas fa-birthday-cake"></i> Umur</label>
+                <input type="number" class="form-control" name="children[${rowCount - 1}][age]" placeholder="Umur dalam tahun" min="0" max="25">
+            </div>
+            <div class="col-md-6 mb-3">
+                <label class="form-label"><i class="fas fa-school"></i> Nama Sekolah/IPT</label>
+                <input type="text" class="form-control" name="children[${rowCount - 1}][school_name]" placeholder="Nama sekolah atau institusi pendidikan">
+            </div>
+        </div>
+    `;
+
+    container.appendChild(childRow);
+}
+
+function removeChildRow(rowNumber) {
+    const row = document.getElementById(`child-row-${rowNumber}`);
+    if (row) {
+        row.remove();
+        // Renumber remaining rows
+        const container = document.getElementById('childrenContainer');
+        Array.from(container.children).forEach((child, index) => {
+            const newRowNum = index + 1;
+            child.id = `child-row-${newRowNum}`;
+            const heading = child.querySelector('.fw-semibold');
+            if (heading) {
+                heading.textContent = `Anak ke-${newRowNum}`;
+            }
+            const deleteBtn = child.querySelector('.btn-outline-danger');
+            if (deleteBtn) {
+                deleteBtn.onclick = () => removeChildRow(newRowNum);
+            }
+        });
+    }
 }
 </script>
 @endsection

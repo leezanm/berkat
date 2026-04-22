@@ -10,11 +10,11 @@ class RequestCategory extends Model
 
     public function requestType()
     {
-        return $this->belongsTo(RequestType::class);
+        return $this->belongsTo(RequestType::class, 'request_type_id');
     }
 
     public function subcategories()
     {
-        return $this->hasMany(RequestSubcategory::class);
+        return $this->hasMany(RequestSubcategory::class, 'request_category_id');
     }
 }

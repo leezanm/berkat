@@ -34,7 +34,7 @@
         <div class="card-body">
             <form method="GET" action="{{ route('admin.request-categories.index') }}" class="d-flex flex-column flex-md-row gap-3 align-items-md-center">
                 <div class="flex-grow-1">
-                    <label for="type_id" class="form-label mb-2 mb-md-0"><i class="fas fa-filter"></i> Penapis Jenis Bantuan</label>
+                    <label for="type_id" class="form-label mb-2 mb-md-0"><i class="fas fa-filter"></i> Carian Jenis Bantuan</label>
                     <select id="type_id" name="type_id" class="form-select">
                         <option value="">Semua Jenis Bantuan</option>
                         @foreach($requestTypes as $type)
@@ -46,7 +46,7 @@
                 </div>
                 <div class="d-flex gap-2 pt-2 pt-md-3">
                     <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-search"></i> Tapis
+                        <i class="fas fa-search"></i> Carian
                     </button>
                     @if($selectedType)
                         <a href="{{ route('admin.request-categories.index') }}" class="btn btn-outline-secondary">

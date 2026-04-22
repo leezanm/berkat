@@ -10,6 +10,6 @@ class RequestSubcategory extends Model
 
     public function category()
     {
-        return $this->belongsTo(RequestCategory::class);
+        return $this->belongsTo(RequestCategory::class, 'request_category_id');
     }
 }
