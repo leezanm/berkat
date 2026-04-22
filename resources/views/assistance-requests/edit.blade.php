@@ -66,7 +66,7 @@
                             <select class="form-select @error('agent_id') is-invalid @enderror" id="agent_id" name="agent_id" required onchange="displayAgentInfo()">
                                 <option value="">Pilih Agen</option>
                                 @forelse($agents as $agent)
-                                    <option value="{{ $agent->id }}" {{ old('agent_id', $assistanceRequest->agent_id) == $agent->id ? 'selected' : '' }}"
+                                    <option value="{{ $agent->id }}" {{ old('agent_id', $assistanceRequest->agent_id) == $agent->id ? 'selected' : '' }}
                                         data-staff-name="{{ $agent->staff_name }}"
                                         data-staff-ic="{{ $agent->staff_ic }}"
                                         data-position="{{ $agent->position }}"
