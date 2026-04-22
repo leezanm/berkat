@@ -251,21 +251,24 @@
     </div>
 </div>
 
+@php
+$existingDocumentsMap = [];
+foreach ($assistanceRequest->documents as $document) {
+    $existingDocumentsMap[$document->document_key] = [
+        'name' => $document->original_name,
+        'size' => $document->file_size,
+        'url' => route('assistance-requests.documents.download', [$assistanceRequest, $document]),
+    ];
+}
+@endphp
+
 <script>
 const documentRequirements = @json($documentRequirements);
 const documentErrors = @json($errors->getMessages());
 const oldTypeId = @json(old('request_type_id', $assistanceRequest->request_type_id));
 const oldCategoryId = @json(old('request_category_id', $assistanceRequest->request_category_id));
 const oldSubcategoryId = @json(old('request_subcategory_id', $assistanceRequest->request_subcategory_id));
-const existingDocuments = @json($assistanceRequest->documents->mapWithKeys(function ($document) use ($assistanceRequest) {
-    return [
-        $document->document_key => [
-            'name' => $document->original_name,
-            'size' => $document->file_size,
-            'url' => route('assistance-requests.documents.download', [$assistanceRequest, $document]),
-        ],
-    ];
-}));
+const existingDocuments = @json($existingDocumentsMap);
 
 function escapeHtml(value) {
     return (value || '')
