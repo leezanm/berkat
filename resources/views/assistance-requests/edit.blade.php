@@ -60,6 +60,22 @@
                             <textarea class="form-control @error('purpose') is-invalid @enderror" id="purpose" name="purpose" rows="3" required>{{ old('purpose', $assistanceRequest->purpose) }}</textarea>
                             @error('purpose') <span class="invalid-feedback">{{ $message }}</span> @enderror
                         </div>
+
+                        <div class="mb-3">
+                            <label for="agent_id" class="form-label"><i class="fas fa-user-tie"></i> Pilih Agen untuk Semakan <span class="text-danger">*</span></label>
+                            <select class="form-select @error('agent_id') is-invalid @enderror" id="agent_id" name="agent_id" required>
+                                <option value="">Pilih Agen</option>
+                                @forelse($agents as $agent)
+                                    <option value="{{ $agent->id }}" {{ old('agent_id', $assistanceRequest->agent_id) == $agent->id ? 'selected' : '' }}>
+                                        {{ $agent->user->name }} - {{ $agent->office_name }}
+                                    </option>
+                                @empty
+                                    <option value="" disabled>Tiada agen aktif tersedia</option>
+                                @endforelse
+                            </select>
+                            <div class="form-hint">Pilih agen yang akan menyemak dokumen dan kelengkapan permohonan anda.</div>
+                            @error('agent_id') <span class="invalid-feedback d-block"><i class="fas fa-exclamation-circle"></i> {{ $message }}</span> @enderror
+                        </div>
                     </div>
                 </div>
 

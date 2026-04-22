@@ -53,7 +53,7 @@ class DummyAssistanceRequestSeeder extends Seeder
         // Dapatkan Agents dari table agents, bukan users
         $agent = Agent::first();
         $agent2 = Agent::skip(1)->first();
-        
+
         // Jika tiada agents, return untuk mengelakkan error
         if (!$agent || !$agent2) {
             return;

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Agent;
 use App\Models\AssistanceRequestDocument;
 use App\Models\AssistanceRequest;
 use App\Models\RequestType;
@@ -22,13 +23,22 @@ class AssistanceRequestController extends Controller
         if ($user->role === 'member') {
             $requests = AssistanceRequest::where('user_id', $user->id)->latest()->paginate(10);
         } elseif ($user->role === 'agent') {
-            $requests = AssistanceRequest::where(function ($query) use ($user) {
-                $query->where('user_id', $user->id)
-                    ->orWhere('agent_id', $user->id)
-                    ->orWhere(function ($subQuery) {
-                        $subQuery->whereNull('agent_id')
-                            ->where('status', 'submitted');
-                    });
+            // Get agent profile for this user
+            $agent = Agent::where('user_id', $user->id)->first();
+            
+            $requests = AssistanceRequest::where(function ($query) use ($user, $agent) {
+                $query->where('user_id', $user->id);
+                
+                if ($agent) {
+                    // Show requests assigned to this agent
+                    $query->orWhere('agent_id', $agent->id);
+                }
+                
+                // Show unassigned requests with submitted status
+                $query->orWhere(function ($subQuery) {
+                    $subQuery->whereNull('agent_id')
+                        ->where('status', 'submitted');
+                });
             })->latest()->paginate(10);
         } elseif ($user->role === 'jk') {
             $requests = AssistanceRequest::where(function ($query) use ($user) {
@@ -48,9 +58,10 @@ class AssistanceRequestController extends Controller
     public function create()
     {
         $requestTypes = RequestType::all();
+        $agents = Agent::where('status', 'active')->with('user')->get();
         $documentRequirements = config('assistance_documents.categories', []);
 
-        return view('assistance-requests.create', compact('requestTypes', 'documentRequirements'));
+        return view('assistance-requests.create', compact('requestTypes', 'agents', 'documentRequirements'));
     }
 
     /**
@@ -79,6 +90,7 @@ class AssistanceRequestController extends Controller
             'spouse_ic' => 'nullable|string',
             'spouse_salary' => 'nullable|numeric',
             'spouse_position' => 'nullable|string',
+            'agent_id' => 'required|exists:agents,id',
         ] + $this->documentValidationRules((int) $request->input('request_category_id')));
 
         unset($validated['documents']);
@@ -121,11 +133,12 @@ class AssistanceRequestController extends Controller
         $requestTypes = RequestType::all();
         $selectedType = $assistanceRequest->requestType;
         $categories = $selectedType ? $selectedType->categories : [];
+        $agents = Agent::where('status', 'active')->with('user')->get();
         $documentRequirements = config('assistance_documents.categories', []);
 
         $assistanceRequest->load('documents');
 
-        return view('assistance-requests.edit', compact('assistanceRequest', 'requestTypes', 'categories', 'documentRequirements'));
+        return view('assistance-requests.edit', compact('assistanceRequest', 'requestTypes', 'categories', 'agents', 'documentRequirements'));
     }
 
     /**
@@ -158,6 +171,7 @@ class AssistanceRequestController extends Controller
             'spouse_ic' => 'nullable|string',
             'spouse_salary' => 'nullable|numeric',
             'spouse_position' => 'nullable|string',
+            'agent_id' => 'required|exists:agents,id',
         ] + $this->documentValidationRules((int) $request->input('request_category_id'), $assistanceRequest));
 
         unset($validated['documents']);
@@ -322,8 +336,21 @@ class AssistanceRequestController extends Controller
         }
 
         if ($user->role === 'agent') {
-            return $assistanceRequest->agent_id === $user->id
-                || ($assistanceRequest->status === 'submitted' && $assistanceRequest->agent_id === null);
+            $agent = Agent::where('user_id', $user->id)->first();
+            
+            if ($agent) {
+                // Agent can view if assigned to this request
+                if ($assistanceRequest->agent_id === $agent->id) {
+                    return true;
+                }
+                
+                // Agent can view unassigned submitted requests
+                if ($assistanceRequest->status === 'submitted' && $assistanceRequest->agent_id === null) {
+                    return true;
+                }
+            }
+            
+            return false;
         }
 
         if ($user->role === 'jk') {

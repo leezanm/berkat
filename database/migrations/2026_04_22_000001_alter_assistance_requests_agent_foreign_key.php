@@ -8,7 +8,7 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     * 
+     *
      * Mengubah agent_id di jadual assistance_requests untuk merujuk ke jadual agents
      * bukannya jadual users.
      */
@@ -21,7 +21,7 @@ return new class extends Migration
             } catch (\Exception $e) {
                 // Constraint mungkin tidak wujud
             }
-            
+
             // Ubah agent_id menjadi foreign key ke agents table
             $table->foreign('agent_id')
                 ->references('id')
