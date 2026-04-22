@@ -336,37 +336,63 @@ RequestCategory
 1. Klik "Permohonan Baru" di halaman utama
 2. Pilih Jenis Permohonan (Pendidikan, Kesihatan, dll)
 3. Pilih Kategori → Sub-kategori
-4. Isi maklumat peribadi & permohonan
-5. Klik "Simpan sebagai Draf"
+4. Isi tujuan permohonan dengan jelas
+5. PILIH AGEN yang akan menyemak permohonan*
+   - Agen ditampilkan dengan nama dan lokasi pejabat
+   - Hanya agen aktif tersedia untuk dipilih
+6. Isi maklumat peribadi & pemohon
+7. Klik "Simpan sebagai Draf"
 ```
+*Penting: Ahli WAJIB memilih agen pada saat membuat permohonan. Agen yang dipilih akan secara otomatis melihat permohonan anda untuk semakan.
 
 **2. Menghantar Permohonan**
 ```
 1. Buka permohonan (status: Draf)
-2. Periksa semua maklumat
+2. Periksa semua maklumat dan agen yang dipilih
 3. Muatnaik dokumen sokongan (jika perlu)
 4. Klik "Hantar Permohonan"
 5. Status berubah ke: Dihantar
+6. Agen yang dipilih akan melihat permohonan dalam senarai mereka
 ```
 
 **3. Memantau Status**
 ```
 1. Buka "Senarai Permohonan"
 2. Lihat status terkini:
-   - Dihantar → Agen memeriksa
+   - Dihantar → Agen sedang memeriksa dokumen
    - Dalam Proses → JK membuat keputusan
    - Diluluskan/Ditolak → Keputusan akhir
+3. Periksa nota dan maklum balas dari agen
 ```
 
 ### Untuk Agen
 
-**1. Mengesahkan Permohonan**
+**1. Melihat Permohonan yang Ditugaskan**
+```
+1. Login dengan akaun agen
+2. Klik "Senarai Permohonan"
+3. Permohonan ditampilkan dalam kategori:
+   a) Permohonan saya (yang saya cipta)
+   b) Permohonan yang ditugaskan kepada saya
+   c) Permohonan belum ditugaskan dengan status: Dihantar
+```
+
+**2. Mengesahkan Permohonan Ditugaskan**
 ```
 1. Lihat "Senarai Permohonan" dengan status: Dihantar
-2. Klik permohonan untuk butiran
+2. Klik permohonan yang ditugaskan kepada saya
 3. Periksa dokumen yang dimuatnaik
-4. Berikan nota pengesahan
-5. Klik "Sahkan" atau "Tolak"
+4. Periksa kelengkapan maklumat pemohon
+5. Berikan nota pengesahan
+6. Klik "Sahkan" (jika lengkap) atau "Tolak" (jika tidak lengkap)
+```
+
+**3. Menangani Permohonan Belum Ditugaskan**
+```
+Jika ada permohonan berStatus 'Dihantar' tetapi belum ditugaskan ke agen manapun:
+1. Lihat dalam senarai permohonan
+2. Anda boleh mengambil alih untuk menyemak
+3. Sistem akan mencatat anda sebagai agen pengesah
 ```
 
 ### Untuk Pentadbir
