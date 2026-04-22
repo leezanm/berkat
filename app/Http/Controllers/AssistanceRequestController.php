@@ -25,15 +25,15 @@ class AssistanceRequestController extends Controller
         } elseif ($user->role === 'agent') {
             // Get agent profile for this user
             $agent = Agent::where('user_id', $user->id)->first();
-            
+
             $requests = AssistanceRequest::where(function ($query) use ($user, $agent) {
                 $query->where('user_id', $user->id);
-                
+
                 if ($agent) {
                     // Show requests assigned to this agent
                     $query->orWhere('agent_id', $agent->id);
                 }
-                
+
                 // Show unassigned requests with submitted status
                 $query->orWhere(function ($subQuery) {
                     $subQuery->whereNull('agent_id')
@@ -337,19 +337,19 @@ class AssistanceRequestController extends Controller
 
         if ($user->role === 'agent') {
             $agent = Agent::where('user_id', $user->id)->first();
-            
+
             if ($agent) {
                 // Agent can view if assigned to this request
                 if ($assistanceRequest->agent_id === $agent->id) {
                     return true;
                 }
-                
+
                 // Agent can view unassigned submitted requests
                 if ($assistanceRequest->status === 'submitted' && $assistanceRequest->agent_id === null) {
                     return true;
                 }
             }
-            
+
             return false;
         }
 

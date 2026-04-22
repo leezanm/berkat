@@ -57,10 +57,18 @@
 
                         <div class="mb-3">
                             <label for="agent_id" class="form-label"><i class="fas fa-user-tie"></i> Pilih Agen untuk Semakan <span class="text-danger">*</span></label>
-                            <select class="form-select @error('agent_id') is-invalid @enderror" id="agent_id" name="agent_id" required>
+                            <select class="form-select @error('agent_id') is-invalid @enderror" id="agent_id" name="agent_id" required onchange="displayAgentInfo()">
                                 <option value="">Pilih Agen</option>
                                 @forelse($agents as $agent)
-                                    <option value="{{ $agent->id }}" {{ old('agent_id') == $agent->id ? 'selected' : '' }}>
+                                    <option value="{{ $agent->id }}" {{ old('agent_id') == $agent->id ? 'selected' : '' }}"
+                                        data-staff-name="{{ $agent->staff_name }}"
+                                        data-staff-ic="{{ $agent->staff_ic }}"
+                                        data-position="{{ $agent->position }}"
+                                        data-grade="{{ $agent->grade }}"
+                                        data-accounting-office="{{ $agent->accounting_office }}"
+                                        data-staff-email="{{ $agent->staff_email }}"
+                                        data-staff-mobile="{{ $agent->staff_mobile }}"
+                                        data-office-phone="{{ $agent->office_phone }}">
                                         {{ $agent->user->name }} - {{ $agent->office_name }}
                                     </option>
                                 @empty
@@ -69,6 +77,25 @@
                             </select>
                             <div class="form-hint">Pilih agen yang akan menyemak dokumen dan kelengkapan permohonan anda.</div>
                             @error('agent_id') <span class="invalid-feedback d-block"><i class="fas fa-exclamation-circle"></i> {{ $message }}</span> @enderror
+                        </div>
+
+                        <!-- Agent Information Display -->
+                        <div id="agent-info-display" class="alert alert-info d-none" role="alert" style="display: none;">
+                            <h6 class="alert-heading"><i class="fas fa-info-circle"></i> Maklumat Agen Terpilih</h6>
+                            <div class="row g-2 mt-2">
+                                <div class="col-md-6">
+                                    <div><strong>Nama:</strong> <span id="agent-staff-name">-</span></div>
+                                    <div><strong>No. KP:</strong> <span id="agent-staff-ic">-</span></div>
+                                    <div><strong>Jawatan:</strong> <span id="agent-position">-</span></div>
+                                    <div><strong>Gred:</strong> <span id="agent-grade">-</span></div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div><strong>Pejabat Perakaunan:</strong> <span id="agent-accounting-office">-</span></div>
+                                    <div><strong>Email:</strong> <span id="agent-staff-email">-</span></div>
+                                    <div><strong>No. HP:</strong> <span id="agent-staff-mobile">-</span></div>
+                                    <div><strong>No. Pejabat:</strong> <span id="agent-office-phone">-</span></div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -379,6 +406,35 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     renderDocumentRequirements();
+
+    // Display agent info if agent was previously selected
+    const agentSelect = document.getElementById('agent_id');
+    if (agentSelect.value) {
+        displayAgentInfo();
+    }
 });
+
+function displayAgentInfo() {
+    const agentSelect = document.getElementById('agent_id');
+    const selectedOption = agentSelect.options[agentSelect.selectedIndex];
+    const display = document.getElementById('agent-info-display');
+
+    if (!selectedOption.value) {
+        display.style.display = 'none';
+        return;
+    }
+
+    // Populate agent information
+    document.getElementById('agent-staff-name').textContent = selectedOption.dataset.staffName || '-';
+    document.getElementById('agent-staff-ic').textContent = selectedOption.dataset.staffIc || '-';
+    document.getElementById('agent-position').textContent = selectedOption.dataset.position || '-';
+    document.getElementById('agent-grade').textContent = selectedOption.dataset.grade || '-';
+    document.getElementById('agent-accounting-office').textContent = selectedOption.dataset.accountingOffice || '-';
+    document.getElementById('agent-staff-email').textContent = selectedOption.dataset.staffEmail || '-';
+    document.getElementById('agent-staff-mobile').textContent = selectedOption.dataset.staffMobile || '-';
+    document.getElementById('agent-office-phone').textContent = selectedOption.dataset.officePhone || '-';
+
+    display.style.display = 'block';
+}
 </script>
 @endsection

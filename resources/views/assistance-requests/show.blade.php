@@ -76,7 +76,14 @@
                         <div class="col-md-6">
                             <div class="detail-item">
                                 <span class="detail-label"><i class="fas fa-user-check"></i> Agen Bertugas</span>
-                                <p class="detail-value">{{ $assistanceRequest->agent?->name ?? 'Belum ditetapkan' }}</p>
+                                <p class="detail-value">
+                                    @if($assistanceRequest->agent)
+                                        {{ $assistanceRequest->agent->user->name }}
+                                        <br><small class="text-muted">{{ $assistanceRequest->agent->office_name }}</small>
+                                    @else
+                                        Belum ditetapkan
+                                    @endif
+                                </p>
                             </div>
                         </div>
                         <div class="col-md-6">
@@ -91,6 +98,26 @@
                             </div>
                         </div>
                     </div>
+
+                    @if($assistanceRequest->agent)
+                        <div class="alert alert-info mb-3" role="alert">
+                            <h6 class="alert-heading"><i class="fas fa-id-card"></i> Maklumat Agen Pengesahan</h6>
+                            <div class="row g-2 mt-2">
+                                <div class="col-md-6">
+                                    <div><strong>Nama:</strong> {{ $assistanceRequest->agent->staff_name ?? '-' }}</div>
+                                    <div><strong>No. KP:</strong> {{ $assistanceRequest->agent->staff_ic ?? '-' }}</div>
+                                    <div><strong>Jawatan:</strong> {{ $assistanceRequest->agent->position ?? '-' }}</div>
+                                    <div><strong>Gred:</strong> {{ $assistanceRequest->agent->grade ?? '-' }}</div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div><strong>Pejabat Perakaunan:</strong> {{ $assistanceRequest->agent->accounting_office ?? '-' }}</div>
+                                    <div><strong>Email:</strong> {{ $assistanceRequest->agent->staff_email ?? '-' }}</div>
+                                    <div><strong>No. HP:</strong> {{ $assistanceRequest->agent->staff_mobile ?? '-' }}</div>
+                                    <div><strong>No. Pejabat:</strong> {{ $assistanceRequest->agent->office_phone ?? '-' }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    @endif
 
                     @if($assistanceRequest->approved_amount)
                         <div class="stat-card" style="background: linear-gradient(135deg, var(--success-color) 0%, #1E8449 100%); color: white; min-height: auto; margin-bottom: 1rem;">
