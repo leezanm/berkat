@@ -21,7 +21,8 @@ Route::post('logout', [LogoutController::class, 'logout'])->name('logout');
 
 // Protected Routes
 Route::middleware(['auth'])->group(function () {
-    Route::get('admin/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
+    // Admin Dashboard (Admin Only)
+    Route::middleware('admin')->get('admin/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
     Route::resource('assistance-requests', AssistanceRequestController::class);
     Route::post('assistance-requests/{assistanceRequest}/submit', [AssistanceRequestController::class, 'submit'])->name('assistance-requests.submit');
     Route::post('assistance-requests/{assistanceRequest}/agent-review', [AssistanceRequestController::class, 'verifyByAgent'])->name('assistance-requests.agent-review');
@@ -31,8 +32,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('request-types/{requestType}/categories', [AssistanceRequestController::class, 'getCategories']);
     Route::get('request-categories/{requestCategory}/subcategories', [AssistanceRequestController::class, 'getSubcategories']);
 
-    // Admin Utilities Routes
-    Route::prefix('admin/utilities')->name('admin.')->group(function () {
+    // Admin Utilities Routes (Admin Only)
+    Route::middleware('admin')->prefix('admin/utilities')->name('admin.')->group(function () {
         Route::resource('agents', AgentController::class);
         Route::resource('request-types', RequestTypeController::class);
         Route::resource('request-categories', RequestCategoryController::class);
