@@ -35,7 +35,7 @@ class AgentController extends Controller
         if ($filterYear || $filterTypeId || $filterApplicant) {
             $query->whereHas('verifiedRequests', function ($q) use ($filterYear, $filterTypeId, $filterApplicant) {
                 if ($filterYear) {
-                    $q->whereRaw('strftime("%Y", created_at) = ?', [$filterYear]);
+                    $q->whereRaw('YEAR(created_at) = ?', [(int) $filterYear]);
                 }
                 if ($filterTypeId) {
                     $q->where('request_type_id', $filterTypeId);
@@ -48,7 +48,7 @@ class AgentController extends Controller
 
         $agents = $query->paginate(15)->withQueryString();
 
-        $availableYears = AssistanceRequest::selectRaw('strftime("%Y", created_at) as year')
+        $availableYears = AssistanceRequest::selectRaw('YEAR(created_at) as year')
             ->distinct()->orderByDesc('year')->pluck('year');
 
         $requestTypes = RequestType::orderBy('name')->get();

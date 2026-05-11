@@ -17,7 +17,7 @@ class AdminDashboardController extends Controller
         }
 
         $availableYears = AssistanceRequest::query()
-            ->selectRaw('DISTINCT strftime("%Y", created_at) as year')
+            ->selectRaw('DISTINCT YEAR(created_at) as year')
             ->whereNotNull('created_at')
             ->orderByDesc('year')
             ->pluck('year')
@@ -42,10 +42,10 @@ class AdminDashboardController extends Controller
 
         $baseQuery = AssistanceRequest::query()
             ->when($selectedYear, function ($query, $year) {
-                $query->whereRaw('strftime("%Y", created_at) = ?', [(string) $year]);
+                $query->whereRaw('YEAR(created_at) = ?', [(int) $year]);
             })
             ->when($selectedMonth, function ($query, $month) {
-                $query->whereRaw('strftime("%m", created_at) = ?', [str_pad($month, 2, '0', STR_PAD_LEFT)]);
+                $query->whereRaw('MONTH(created_at) = ?', [(int) $month]);
             });
 
         $totalRequests = (clone $baseQuery)->count();
@@ -80,8 +80,8 @@ class AdminDashboardController extends Controller
             ->map(function ($agent) use ($selectedYear, $selectedMonth) {
                 $q = AssistanceRequest::query()
                     ->where('agent_id', $agent->id)
-                    ->when($selectedYear, fn ($query, $year) => $query->whereRaw('strftime("%Y", created_at) = ?', [(string) $year]))
-                    ->when($selectedMonth, fn ($query, $month) => $query->whereRaw('strftime("%m", created_at) = ?', [str_pad($month, 2, '0', STR_PAD_LEFT)]));
+                    ->when($selectedYear, fn ($query, $year) => $query->whereRaw('YEAR(created_at) = ?', [(int) $year]))
+                    ->when($selectedMonth, fn ($query, $month) => $query->whereRaw('MONTH(created_at) = ?', [(int) $month]));
 
                 $agent->total_assigned = (clone $q)->count();
                 $agent->pending_count  = (clone $q)->whereIn('status', ['submitted', 'in_process'])->count();

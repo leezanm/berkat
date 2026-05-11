@@ -20,7 +20,7 @@ class PaymentController extends Controller
 
         // Filter tahun
         if ($year = $request->query('filter_year')) {
-            $query->whereRaw('strftime("%Y", payment_date) = ?', [$year]);
+            $query->whereRaw('YEAR(payment_date) = ?', [(int) $year]);
         }
 
         // Filter kaedah
@@ -37,7 +37,7 @@ class PaymentController extends Controller
 
         $payments = $query->paginate(15)->withQueryString();
 
-        $availableYears = Payment::selectRaw('strftime("%Y", payment_date) as year')
+        $availableYears = Payment::selectRaw('YEAR(payment_date) as year')
             ->distinct()
             ->orderByDesc('year')
             ->pluck('year');

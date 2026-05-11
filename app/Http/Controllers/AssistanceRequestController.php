@@ -28,7 +28,7 @@ class AssistanceRequestController extends Controller
 
         $buildQuery = function ($base) use ($filterYear, $filterTypeId, $filterStatus, $filterApplicant) {
             if ($filterYear) {
-                $base->whereRaw('strftime("%Y", assistance_requests.created_at) = ?', [$filterYear]);
+                $base->whereRaw('YEAR(assistance_requests.created_at) = ?', [(int) $filterYear]);
             }
             if ($filterTypeId) {
                 $base->where('request_type_id', $filterTypeId);
@@ -62,7 +62,7 @@ class AssistanceRequestController extends Controller
             $requests = $buildQuery($base)->paginate(10)->withQueryString();
         }
 
-        $availableYears = AssistanceRequest::selectRaw('strftime("%Y", created_at) as year')
+        $availableYears = AssistanceRequest::selectRaw('YEAR(created_at) as year')
             ->distinct()->orderByDesc('year')->pluck('year');
 
         $requestTypes = RequestType::orderBy('name')->get();
