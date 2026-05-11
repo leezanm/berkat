@@ -17,13 +17,13 @@ return new class extends Migration
         Schema::table('assistance_requests', function (Blueprint $table) {
             // Buang constraint foreign key yang sedia ada
             try {
-                $table->dropForeignKey('assistance_requests_agent_id_foreign');
+                $table->dropForeign('assistance_requests_agent_id_foreign');
             } catch (\Exception $e) {
                 // Constraint mungkin tidak wujud
             }
 
             // Ubah agent_id menjadi foreign key ke agents table
-            $table->foreign('agent_id')
+            $table->foreign('agent_id', 'assistance_requests_agent_id_agents_fk')
                 ->references('id')
                 ->on('agents')
                 ->nullOnDelete();
@@ -36,12 +36,18 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('assistance_requests', function (Blueprint $table) {
-            // Kembalikan foreign key ke users
+            // Buang foreign key ke agents
             try {
-                $table->dropForeignKey('assistance_requests_agent_id_foreign');
+                $table->dropForeign('assistance_requests_agent_id_agents_fk');
             } catch (\Exception $e) {
                 // Constraint mungkin tidak wujud
             }
+
+            // Kembalikan foreign key ke users
+            $table->foreign('agent_id', 'assistance_requests_agent_id_users_fk')
+                ->references('id')
+                ->on('users')
+                ->nullOnDelete();
         });
     }
 };
