@@ -19,7 +19,7 @@ return new class extends Migration
             $table->unsignedBigInteger('file_size')->nullable();
             $table->timestamps();
 
-            $table->unique(['assistance_request_id', 'document_key']);
+            $table->unique(['assistance_request_id', 'document_key'], 'ard_request_doc_key_unique');
         });
     }
 
