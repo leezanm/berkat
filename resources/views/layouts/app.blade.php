@@ -100,6 +100,55 @@
             border-radius: 6px;
         }
 
+        .navbar-brand .brand-tagline {
+            display: inline;
+        }
+
+        @media (max-width: 991.98px) {
+            .navbar-brand {
+                font-size: 1rem;
+                max-width: calc(100% - 56px);
+                overflow: hidden;
+            }
+            .navbar-brand .logo-img {
+                width: 38px;
+                height: 38px;
+            }
+            .navbar-brand .brand-tagline {
+                display: none;
+            }
+            .navbar-collapse {
+                background: rgba(255,255,255,0.97);
+                border-top: 1px solid var(--border-light);
+                border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+                padding: 0.5rem 0.5rem 1rem;
+                margin-top: 0.5rem;
+                box-shadow: 0 12px 32px rgba(23,23,23,0.1);
+            }
+            .navbar-collapse .nav-link {
+                padding: 0.65rem 1rem !important;
+                margin: 2px 0;
+                border-radius: var(--radius-sm);
+            }
+            .navbar-collapse .dropdown-menu {
+                position: static !important;
+                box-shadow: none;
+                border: none;
+                background: rgba(255,87,34,0.04);
+                border-radius: var(--radius-sm);
+                padding: 0.25rem 0.5rem;
+            }
+            .navbar-toggler {
+                border: 2px solid var(--primary-color) !important;
+                border-radius: 10px;
+                padding: 6px 10px;
+                background: rgba(255,87,34,0.08) !important;
+            }
+            .navbar-toggler-icon {
+                background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='%23FF5722' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2.5' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e") !important;
+            }
+        }
+
         .nav-link {
             color: var(--text-dark) !important;
             font-weight: 600;
@@ -733,9 +782,12 @@
     <nav class="navbar navbar-expand-lg">
         <div class="container">
             <a class="navbar-brand" href="{{ url('/') }}">
-                <img src="{{ asset('images/berkat-logo.jpeg') }}" alt="Logo BERKAT" class="logo-img"> <strong>BERKAT CARE</strong> - Sistem Pengurusan Permohonan Bantuan
+                <img src="{{ asset('images/berkat-logo.jpeg') }}" alt="Logo BERKAT" class="logo-img">
+                <span><strong>BERKAT CARE</strong><span class="brand-tagline"> - Sistem Pengurusan Permohonan Bantuan</span></span>
             </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#navbarNav" aria-controls="navbarNav"
+                    aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
