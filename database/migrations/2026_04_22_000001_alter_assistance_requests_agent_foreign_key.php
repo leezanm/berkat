@@ -17,7 +17,7 @@ return new class extends Migration
         Schema::table('assistance_requests', function (Blueprint $table) {
             // Buang constraint foreign key yang sedia ada
             try {
-                $table->dropForeign('assistance_requests_agent_id_foreign');
+                $table->dropForeign(['agent_id']);
             } catch (\Exception $e) {
                 // Constraint mungkin tidak wujud
             }
@@ -38,7 +38,7 @@ return new class extends Migration
         Schema::table('assistance_requests', function (Blueprint $table) {
             // Buang foreign key ke agents
             try {
-                $table->dropForeign('assistance_requests_agent_id_agents_fk');
+                $table->dropForeign(['agent_id']);
             } catch (\Exception $e) {
                 // Constraint mungkin tidak wujud
             }

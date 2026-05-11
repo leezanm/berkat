@@ -4,7 +4,7 @@
 <div class="container">
     <div class="row mb-5 align-items-center">
         <div class="col-md-8">
-            <h1><i class="fas fa-list"></i> Senarai Permohonan Bantuan</h1>
+            <h3><i class="fas fa-list"></i> Senarai Permohonan Bantuan</h3>
         </div>
         <div class="col-md-4 text-end">
             <a href="{{ route('assistance-requests.create') }}" class="btn btn-primary">
@@ -62,11 +62,68 @@
     @endif
 
     @if($requests->count() > 0)
+
+        {{-- Filter --}}
+        <div class="card mb-4">
+            <div class="card-body">
+                <form method="GET" action="{{ route('assistance-requests.index') }}">
+                    <div class="row g-3 align-items-end">
+                        <div class="col-md-2">
+                            <label class="form-label"><i class="fas fa-calendar"></i> Tahun</label>
+                            <select name="filter_year" class="form-select">
+                                <option value="">Semua Tahun</option>
+                                @foreach($availableYears as $year)
+                                    <option value="{{ $year }}" {{ ($filterYear ?? '') == $year ? 'selected' : '' }}>{{ $year }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label"><i class="fas fa-list-alt"></i> Jenis Bantuan</label>
+                            <select name="filter_type_id" class="form-select">
+                                <option value="">Semua Jenis</option>
+                                @foreach($requestTypes as $type)
+                                    <option value="{{ $type->id }}" {{ ($filterTypeId ?? '') == $type->id ? 'selected' : '' }}>{{ $type->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label"><i class="fas fa-chart-pie"></i> Status</label>
+                            <select name="filter_status" class="form-select">
+                                <option value="">Semua Status</option>
+                                @foreach($statusOptions as $val => $label)
+                                    <option value="{{ $val }}" {{ ($filterStatus ?? '') === $val ? 'selected' : '' }}>{{ $label }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        @if(auth()->user()->role !== 'member')
+                        <div class="col-md-3">
+                            <label class="form-label"><i class="fas fa-user"></i> Nama Pemohon</label>
+                            <input type="text" name="filter_applicant" class="form-control" placeholder="Nama pemohon" value="{{ $filterApplicant ?? '' }}">
+                        </div>
+                        @endif
+                        <div class="col d-flex gap-2">
+                            <button type="submit" class="btn btn-primary flex-grow-1">
+                                <i class="fas fa-search"></i> Tapis
+                            </button>
+                            @if($filterYear || $filterTypeId || $filterStatus || $filterApplicant)
+                                <a href="{{ route('assistance-requests.index') }}" class="btn btn-outline-secondary" title="Reset">
+                                    <i class="fas fa-times"></i>
+                                </a>
+                            @endif
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
         <div class="table-responsive">
             <table class="table table-hover align-middle">
                 <thead>
                     <tr>
                         <th><i class="fas fa-hashtag"></i> No. Rujukan</th>
+                        @if(auth()->user()->role !== 'member')
+                        <th><i class="fas fa-user"></i> Nama Pemohon</th>
+                        @endif
                         <th><i class="fas fa-briefcase"></i> Jenis Permohonan</th>
                         <th><i class="fas fa-calendar-alt"></i> Tarikh Dihantar</th>
                         <th><i class="fas fa-chart-pie"></i> Status</th>
@@ -80,6 +137,9 @@
                             <td>
                                 <span class="fw-bold">#{{ str_pad($request->id, 5, '0', STR_PAD_LEFT) }}</span>
                             </td>
+                            @if(auth()->user()->role !== 'member')
+                            <td>{{ $request->user->name ?? '-' }}</td>
+                            @endif
                             <td>
                                 <span class="d-inline-block" style="color: var(--primary-color); font-weight: 600;">
                                     {{ $request->requestType->name }}

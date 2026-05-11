@@ -5,7 +5,7 @@
     <div class="row mb-4 align-items-end">
         <div class="col-lg-8">
             <span class="page-kicker"><i class="fas fa-user-tie"></i> Pengurusan</span>
-            <h1><i class="fas fa-users"></i> Senarai Agen</h1>
+            <h3><i class="fas fa-users"></i> Senarai Agen</h3>
             <p class="page-subtitle">Papar dan urus maklumat kakitangan agen yang disahkan oleh Jabatan Akauntan Negara.</p>
         </div>
         <div class="col-lg-4 text-lg-end">
@@ -29,23 +29,47 @@
         </div>
     @endif
 
-    <!-- Search Section -->
+    <!-- Filter Section -->
     <div class="card mb-4">
         <div class="card-body">
-            <form method="GET" action="{{ route('admin.agents.index') }}" class="d-flex flex-column flex-md-row gap-3 align-items-md-center">
-                <div class="flex-grow-1">
-                    <label for="search_name" class="form-label mb-2 mb-md-0"><i class="fas fa-search"></i> Cari Mengikut Nama</label>
-                    <input type="text" id="search_name" name="search_name" class="form-control" placeholder="Nama agen atau kakitangan" value="{{ $searchName ?? '' }}">
-                </div>
-                <div class="d-flex gap-2 pt-2 pt-md-3">
-                    <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-search"></i> Cari
-                    </button>
-                    @if($searchName)
-                        <a href="{{ route('admin.agents.index') }}" class="btn btn-outline-secondary">
-                            <i class="fas fa-times-circle"></i> Reset
-                        </a>
-                    @endif
+            <form method="GET" action="{{ route('admin.agents.index') }}">
+                <div class="row g-3 align-items-end">
+                    <div class="col-md-3">
+                        <label class="form-label"><i class="fas fa-search"></i> Nama Agen</label>
+                        <input type="text" name="search_name" class="form-control" placeholder="Nama agen atau kakitangan" value="{{ $searchName ?? '' }}">
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label"><i class="fas fa-calendar"></i> Tahun</label>
+                        <select name="filter_year" class="form-select">
+                            <option value="">Semua Tahun</option>
+                            @foreach($availableYears as $year)
+                                <option value="{{ $year }}" {{ ($filterYear ?? '') == $year ? 'selected' : '' }}>{{ $year }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label"><i class="fas fa-list-alt"></i> Jenis Bantuan</label>
+                        <select name="filter_type_id" class="form-select">
+                            <option value="">Semua Jenis</option>
+                            @foreach($requestTypes as $type)
+                                <option value="{{ $type->id }}" {{ ($filterTypeId ?? '') == $type->id ? 'selected' : '' }}>{{ $type->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label"><i class="fas fa-user"></i> Nama Pemohon</label>
+                        <input type="text" name="filter_applicant" class="form-control" placeholder="Nama pemohon" value="{{ $filterApplicant ?? '' }}">
+                    </div>
+                    <div class="col-md-2 d-flex gap-2">
+                        <button type="submit" class="btn btn-primary flex-grow-1">
+                            <i class="fas fa-search"></i> Tapis
+                        </button>
+                        @if($searchName || $filterYear || $filterTypeId || $filterApplicant)
+                            <a href="{{ route('admin.agents.index') }}" class="btn btn-outline-secondary" title="Reset">
+                                <i class="fas fa-times"></i>
+                            </a>
+                        @endif
+                    </div>
                 </div>
             </form>
         </div>

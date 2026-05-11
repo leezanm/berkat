@@ -17,40 +17,68 @@ class AssistanceRequestController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         $user = Auth::user();
 
+        $filterYear      = $request->get('filter_year');
+        $filterTypeId    = $request->get('filter_type_id');
+        $filterStatus    = $request->get('filter_status');
+        $filterApplicant = $request->get('filter_applicant');
+
+        $buildQuery = function ($base) use ($filterYear, $filterTypeId, $filterStatus, $filterApplicant) {
+            if ($filterYear) {
+                $base->whereRaw('strftime("%Y", assistance_requests.created_at) = ?', [$filterYear]);
+            }
+            if ($filterTypeId) {
+                $base->where('request_type_id', $filterTypeId);
+            }
+            if ($filterStatus) {
+                $base->where('status', $filterStatus);
+            }
+            if ($filterApplicant) {
+                $base->where('applicant_name', 'like', "%{$filterApplicant}%");
+            }
+            return $base;
+        };
+
         if ($user->role === 'member') {
-            $requests = AssistanceRequest::where('user_id', $user->id)->latest()->paginate(10);
+            $base = AssistanceRequest::with('user', 'requestType')->where('user_id', $user->id)->latest();
+            $requests = $buildQuery($base)->paginate(10)->withQueryString();
         } elseif ($user->role === 'agent') {
-            // Get agent profile for this user
             $agent = Agent::where('user_id', $user->id)->first();
-
-            $requests = AssistanceRequest::where(function ($query) use ($user, $agent) {
-                $query->where('user_id', $user->id);
-
-                if ($agent) {
-                    // Show requests assigned to this agent
-                    $query->orWhere('agent_id', $agent->id);
-                }
-
-                // Show unassigned requests with submitted status
-                $query->orWhere(function ($subQuery) {
-                    $subQuery->whereNull('agent_id')
-                        ->where('status', 'submitted');
-                });
-            })->latest()->paginate(10);
+            $base = AssistanceRequest::with('user', 'requestType')
+                ->when($agent, fn ($q) => $q->where('agent_id', $agent->id), fn ($q) => $q->whereRaw('1 = 0'))
+                ->latest();
+            $requests = $buildQuery($base)->paginate(10)->withQueryString();
         } elseif ($user->role === 'jk') {
-            $requests = AssistanceRequest::where(function ($query) use ($user) {
-                $query->where('user_id', $user->id)
+            $base = AssistanceRequest::with('user', 'requestType')->where(function ($q) use ($user) {
+                $q->where('user_id', $user->id)
                     ->orWhereIn('status', ['in_process', 'approved', 'rejected']);
-            })->latest()->paginate(10);
+            })->latest();
+            $requests = $buildQuery($base)->paginate(10)->withQueryString();
         } else {
-            $requests = AssistanceRequest::latest()->paginate(10);
+            $base = AssistanceRequest::with('user', 'requestType')->latest();
+            $requests = $buildQuery($base)->paginate(10)->withQueryString();
         }
 
-        return view('assistance-requests.index', compact('requests'));
+        $availableYears = AssistanceRequest::selectRaw('strftime("%Y", created_at) as year')
+            ->distinct()->orderByDesc('year')->pluck('year');
+
+        $requestTypes = RequestType::orderBy('name')->get();
+
+        $statusOptions = [
+            'draft'      => 'Draf',
+            'submitted'  => 'Dihantar',
+            'in_process' => 'Dalam Proses',
+            'approved'   => 'Diluluskan',
+            'rejected'   => 'Ditolak',
+        ];
+
+        return view('assistance-requests.index', compact(
+            'requests', 'availableYears', 'requestTypes', 'statusOptions',
+            'filterYear', 'filterTypeId', 'filterStatus', 'filterApplicant'
+        ));
     }
 
     /**
@@ -59,10 +87,20 @@ class AssistanceRequestController extends Controller
     public function create()
     {
         $requestTypes = RequestType::all();
-        $agents = Agent::where('status', 'active')->with('user')->get();
+        $agentQuery = Agent::where('status', 'active')
+            ->with('user')
+            ->orderBy('staff_name');
+        $currentAgent = null;
+
+        if (Auth::user()->role === 'agent') {
+            $currentAgent = Agent::where('user_id', Auth::id())->first();
+            $agentQuery->whereKey($currentAgent?->id);
+        }
+
+        $agents = $agentQuery->get();
         $documentRequirements = config('assistance_documents.categories', []);
 
-        return view('assistance-requests.create', compact('requestTypes', 'agents', 'documentRequirements'));
+        return view('assistance-requests.create', compact('requestTypes', 'agents', 'documentRequirements', 'currentAgent'));
     }
 
     /**
@@ -102,6 +140,11 @@ class AssistanceRequestController extends Controller
         unset($validated['documents']);
         $childrenData = $validated['children'] ?? [];
         unset($validated['children']);
+
+        if (Auth::user()->role === 'agent') {
+            $currentAgent = Agent::where('user_id', Auth::id())->firstOrFail();
+            $validated['agent_id'] = $currentAgent->id;
+        }
 
         $validated = $this->normalizeAssistanceRequestData($validated);
 
@@ -157,12 +200,22 @@ class AssistanceRequestController extends Controller
         $requestTypes = RequestType::all();
         $selectedType = $assistanceRequest->requestType;
         $categories = $selectedType ? $selectedType->categories : [];
-        $agents = Agent::where('status', 'active')->with('user')->get();
+        $agentQuery = Agent::where('status', 'active')
+            ->with('user')
+            ->orderBy('staff_name');
+        $currentAgent = null;
+
+        if (Auth::user()->role === 'agent') {
+            $currentAgent = Agent::where('user_id', Auth::id())->first();
+            $agentQuery->whereKey($currentAgent?->id);
+        }
+
+        $agents = $agentQuery->get();
         $documentRequirements = config('assistance_documents.categories', []);
 
         $assistanceRequest->load('documents', 'children');
 
-        return view('assistance-requests.edit', compact('assistanceRequest', 'requestTypes', 'categories', 'agents', 'documentRequirements'));
+        return view('assistance-requests.edit', compact('assistanceRequest', 'requestTypes', 'categories', 'agents', 'documentRequirements', 'currentAgent'));
     }
 
     /**
@@ -206,6 +259,13 @@ class AssistanceRequestController extends Controller
         unset($validated['documents']);
         $childrenData = $validated['children'] ?? [];
         unset($validated['children']);
+
+        if (Auth::user()->role === 'agent') {
+            $currentAgent = Agent::where('user_id', Auth::id())->firstOrFail();
+            $validated['agent_id'] = $currentAgent->id;
+        } elseif (Auth::user()->role !== 'admin' && $assistanceRequest->status !== 'draft') {
+            $validated['agent_id'] = $assistanceRequest->agent_id;
+        }
 
         $validated = $this->normalizeAssistanceRequestData($validated);
 
@@ -261,9 +321,12 @@ class AssistanceRequestController extends Controller
             abort(403);
         }
 
-        if (Auth::user()->role === 'agent' && $assistanceRequest->agent_id !== null && $assistanceRequest->agent_id !== Auth::id()) {
-            return redirect()->route('assistance-requests.show', $assistanceRequest)
-                ->with('error', 'Permohonan ini sedang dikendalikan oleh agen lain.');
+        if (Auth::user()->role === 'agent') {
+            $currentAgent = Agent::where('user_id', Auth::id())->first();
+            if (!$currentAgent || $assistanceRequest->agent_id !== $currentAgent->id) {
+                return redirect()->route('assistance-requests.show', $assistanceRequest)
+                    ->with('error', 'Permohonan ini tidak ditetapkan kepada anda.');
+            }
         }
 
         if (!in_array($assistanceRequest->status, ['submitted', 'in_process'], true)) {
@@ -277,7 +340,6 @@ class AssistanceRequestController extends Controller
         ]);
 
         $updates = [
-            'agent_id' => Auth::id(),
             'agent_verification' => $validated['agent_verification'],
             'agent_filled' => true,
         ];
@@ -387,15 +449,7 @@ class AssistanceRequestController extends Controller
             $agent = Agent::where('user_id', $user->id)->first();
 
             if ($agent) {
-                // Agent can view if assigned to this request
-                if ($assistanceRequest->agent_id === $agent->id) {
-                    return true;
-                }
-
-                // Agent can view unassigned submitted requests
-                if ($assistanceRequest->status === 'submitted' && $assistanceRequest->agent_id === null) {
-                    return true;
-                }
+                return $assistanceRequest->agent_id === $agent->id;
             }
 
             return false;

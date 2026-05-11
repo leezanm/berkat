@@ -4,7 +4,7 @@
 <div class="container">
     <div class="row mb-4">
         <div class="col-md-8">
-            <h1><i class="fas fa-plus-circle"></i> Tambah Sub-Kategori Bantuan Baru</h1>
+            <h3><i class="fas fa-plus-circle"></i> Tambah Sub-Kategori Bantuan Baru</h3>
         </div>
     </div>
 
@@ -35,7 +35,7 @@
                         </div>
 
                         <div class="mb-3">
-                            <label for="description" class="form-label">Keterangan</label>
+                            <label for="description" class="form-label">Huraian</label>
                             <textarea class="form-control @error('description') is-invalid @enderror" id="description" name="description" rows="4">{{ old('description') }}</textarea>
                             @error('description') <span class="invalid-feedback d-block">{{ $message }}</span> @enderror
                         </div>

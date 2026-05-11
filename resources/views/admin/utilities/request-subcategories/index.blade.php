@@ -5,7 +5,7 @@
     <div class="row mb-4 align-items-end">
         <div class="col-lg-8">
             <span class="page-kicker"><i class="fas fa-cogs"></i> Utiliti Admin</span>
-            <h1><i class="fas fa-tags"></i> Senarai Sub-Kategori Bantuan</h1>
+            <h3><i class="fas fa-tags"></i> Senarai Sub-Kategori Bantuan</h3>
             <p class="page-subtitle">Urus semua sub-kategori bantuan dan tetapkan amaun bantuan untuk setiap sub-kategori.</p>
         </div>
         <div class="col-lg-4 text-lg-end">

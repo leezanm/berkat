@@ -15,24 +15,28 @@ class AgentSeeder extends Seeder
     {
         // Admin user untuk merekod agen
         $admin = User::where('email', 'admin@example.com')->first();
+        $firstAgentStaffName = 'Mohd Rauf bin Abdullah';
+        $secondAgentStaffName = 'Siti Nurhaliza binti Mohamed';
 
         // Dapatkan atau cipta user agen pertama
         $agentUser = User::where('email', 'agent@example.com')->first();
         if (!$agentUser) {
             $agentUser = User::create([
-                'name' => 'Agen BERKAT Utama',
+                'name' => $firstAgentStaffName,
                 'email' => 'agent@example.com',
                 'password' => bcrypt('password'),
                 'role' => 'agent',
                 'email_verified_at' => now(),
             ]);
+        } else {
+            $agentUser->update(['name' => $firstAgentStaffName]);
         }
 
         // Cipta profil agen untuk user pertama jika belum ada
         if (!Agent::where('user_id', $agentUser->id)->exists()) {
             Agent::create([
                 'user_id' => $agentUser->id,
-                'staff_name' => 'Mohd Rauf bin Abdullah',
+                'staff_name' => $firstAgentStaffName,
                 'staff_ic' => '750315-12-5678',
                 'staff_email' => 'mohd.rauf@akauntan.gov.my',
                 'staff_mobile' => '019-2345678',
@@ -59,19 +63,21 @@ class AgentSeeder extends Seeder
         $agentUser2 = User::where('email', 'agent2@example.com')->first();
         if (!$agentUser2) {
             $agentUser2 = User::create([
-                'name' => 'Agen BERKAT Kedua',
+                'name' => $secondAgentStaffName,
                 'email' => 'agent2@example.com',
                 'password' => bcrypt('password'),
                 'role' => 'agent',
                 'email_verified_at' => now(),
             ]);
+        } else {
+            $agentUser2->update(['name' => $secondAgentStaffName]);
         }
 
         // Cipta profil agen untuk user kedua jika belum ada
         if (!Agent::where('user_id', $agentUser2->id)->exists()) {
             Agent::create([
                 'user_id' => $agentUser2->id,
-                'staff_name' => 'Siti Nurhaliza binti Mohamed',
+                'staff_name' => $secondAgentStaffName,
                 'staff_ic' => '800722-10-9876',
                 'staff_email' => 'siti.nurhaliza@akauntan.gov.my',
                 'staff_mobile' => '016-7654321',

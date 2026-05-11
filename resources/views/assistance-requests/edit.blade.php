@@ -4,7 +4,7 @@
 <div class="container">
     <div class="row mb-4">
         <div class="col-md-8">
-            <h1>Edit Permohonan #{{ $assistanceRequest->id }}</h1>
+            <h3>Edit Permohonan #{{ $assistanceRequest->id }}</h3>
         </div>
     </div>
 
@@ -62,8 +62,11 @@
                         </div>
 
                         <div class="mb-3">
-                            <label for="agent_id" class="form-label"><i class="fas fa-user-tie"></i> Pilih Agen untuk Semakan <span class="text-danger">*</span></label>
-                            <select class="form-select @error('agent_id') is-invalid @enderror" id="agent_id" name="agent_id" required onchange="displayAgentInfo()">
+                            @php
+                                $lockAssignedAgent = auth()->user()->role === 'agent' || (auth()->user()->role !== 'admin' && $assistanceRequest->status !== 'draft');
+                            @endphp
+                            <label for="agent_id" class="form-label"><i class="fas fa-user-tie"></i> {{ auth()->user()->role === 'agent' ? 'Agen Yang Akan Menyemak' : 'Pilih Agen untuk Semakan' }} <span class="text-danger">*</span></label>
+                            <select class="form-select @error('agent_id') is-invalid @enderror" id="agent_id" name="agent_id" required onchange="displayAgentInfo()" {{ $lockAssignedAgent ? 'disabled' : '' }}>
                                 <option value="">Pilih Agen</option>
                                 @forelse($agents as $agent)
                                     <option value="{{ $agent->id }}" {{ old('agent_id', $assistanceRequest->agent_id) == $agent->id ? 'selected' : '' }}
@@ -81,7 +84,16 @@
                                     <option value="" disabled>Tiada agen aktif tersedia</option>
                                 @endforelse
                             </select>
-                            <div class="form-hint">Pilih agen yang akan menyemak dokumen dan kelengkapan permohonan anda.</div>
+                            @if($lockAssignedAgent)
+                                <input type="hidden" name="agent_id" value="{{ old('agent_id', $assistanceRequest->agent_id) }}">
+                            @endif
+                            <div class="form-hint">
+                                {{ auth()->user()->role === 'agent'
+                                    ? 'Permohonan ini kekal ditetapkan kepada anda untuk semakan dan syor.'
+                                    : ($lockAssignedAgent
+                                        ? 'Agen yang ditetapkan tidak boleh ditukar selepas permohonan dihantar. Hanya admin boleh mengubah assignment ini.'
+                                        : 'Pilih agen yang akan menyemak dokumen dan kelengkapan permohonan anda.') }}
+                            </div>
                             @error('agent_id') <span class="invalid-feedback d-block"><i class="fas fa-exclamation-circle"></i> {{ $message }}</span> @enderror
                         </div>
 
@@ -97,7 +109,7 @@
                                 </div>
                                 <div class="col-md-6">
                                     <div><strong>Pejabat Perakaunan:</strong> <span id="agent-accounting-office">-</span></div>
-                                    <div><strong>Email:</strong> <span id="agent-staff-email">-</span></div>
+                                    <div><strong>Emel:</strong> <span id="agent-staff-email">-</span></div>
                                     <div><strong>No. HP:</strong> <span id="agent-staff-mobile">-</span></div>
                                     <div><strong>No. Pejabat:</strong> <span id="agent-office-phone">-</span></div>
                                 </div>

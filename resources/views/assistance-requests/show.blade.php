@@ -5,7 +5,7 @@
     <div class="row mb-4 align-items-end">
         <div class="col-lg-8">
             <span class="page-kicker"><i class="fas fa-folder-open"></i> Butiran Permohonan</span>
-            <h1><i class="fas fa-file-invoice"></i> Butiran Permohonan #{{ str_pad($assistanceRequest->id, 5, '0', STR_PAD_LEFT) }}</h1>
+            <h3><i class="fas fa-file-invoice"></i> Butiran Permohonan #{{ str_pad($assistanceRequest->id, 5, '0', STR_PAD_LEFT) }}</h3>
             <p class="page-subtitle">Paparan ini menghimpunkan status, maklumat pemohon dan butiran penghantaran dalam susunan yang lebih jelas untuk semakan pantas.</p>
         </div>
         <div class="col-lg-4 text-lg-end">
@@ -111,7 +111,7 @@
                                 </div>
                                 <div class="col-md-6">
                                     <div><strong>Pejabat Perakaunan:</strong> {{ $assistanceRequest->agent->accounting_office ?? '-' }}</div>
-                                    <div><strong>Email:</strong> {{ $assistanceRequest->agent->staff_email ?? '-' }}</div>
+                                    <div><strong>Emel:</strong> {{ $assistanceRequest->agent->staff_email ?? '-' }}</div>
                                     <div><strong>No. HP:</strong> {{ $assistanceRequest->agent->staff_mobile ?? '-' }}</div>
                                     <div><strong>No. Pejabat:</strong> {{ $assistanceRequest->agent->office_phone ?? '-' }}</div>
                                 </div>
@@ -124,6 +124,42 @@
                             <div class="detail-label" style="color: rgba(255,255,255,0.7);"><i class="fas fa-money-bill-wave"></i> Jumlah Diluluskan</div>
                             <p style="font-size: 1.5rem; font-weight: 700; margin: 0;">RM {{ number_format($assistanceRequest->approved_amount, 2) }}</p>
                         </div>
+                    @endif
+
+                    @if($assistanceRequest->status === 'approved')
+                        @php $totalPaid = $assistanceRequest->payments->sum('amount'); @endphp
+                        @if($totalPaid > 0)
+                            <div class="d-flex align-items-center gap-3 p-3 rounded mb-2"
+                                 style="background:#e8f5e9;border:1px solid #a5d6a7;">
+                                <div style="font-size:1.6rem;color:#2E7D32;">
+                                    <i class="fas fa-check-circle"></i>
+                                </div>
+                                <div>
+                                    <div style="font-weight:700;color:#1B5E20;font-size:0.95rem;">
+                                        Pembayaran Selesai
+                                    </div>
+                                    <div style="font-size:0.83rem;color:#388E3C;">
+                                        Jumlah dibayar: <strong>RM {{ number_format($totalPaid, 2) }}</strong>
+                                        &nbsp;·&nbsp; {{ $assistanceRequest->payments->count() }} rekod
+                                    </div>
+                                </div>
+                            </div>
+                        @else
+                            <div class="d-flex align-items-center gap-3 p-3 rounded mb-2"
+                                 style="background:#fff8e1;border:1px solid #ffe082;">
+                                <div style="font-size:1.6rem;color:#F57F17;">
+                                    <i class="fas fa-clock"></i>
+                                </div>
+                                <div>
+                                    <div style="font-weight:700;color:#E65100;font-size:0.95rem;">
+                                        Menunggu Pembayaran
+                                    </div>
+                                    <div style="font-size:0.83rem;color:#F57F17;">
+                                        Permohonan diluluskan — pembayaran belum direkodkan.
+                                    </div>
+                                </div>
+                            </div>
+                        @endif
                     @endif
 
                     @if($assistanceRequest->rejection_reason)
@@ -544,5 +580,79 @@
             </div>
         </div>
     </div>
+
+    {{-- ===================== BAHAGIAN PEMBAYARAN ===================== --}}
+    @if($assistanceRequest->status === 'approved')
+    <div class="row g-4 mt-1">
+        <div class="col-12">
+            <div class="surface-panel p-0 overflow-hidden">
+                <div class="d-flex align-items-center justify-content-between px-4 py-3"
+                     style="background:#f8faf8;border-bottom:1px solid #e5e9e5;">
+                    <h5 class="mb-0"><i class="fas fa-money-bill-wave text-success"></i> Rekod Pembayaran</h5>
+                    @if(Auth::user()->isAdmin())
+                    <a href="{{ route('admin.payments.create', ['assistance_request_id' => $assistanceRequest->id]) }}"
+                       class="btn btn-success btn-sm">
+                        <i class="fas fa-plus-circle"></i> Rekod Bayaran Baru
+                    </a>
+                    @endif
+                </div>
+                <div class="p-4">
+                    @if($assistanceRequest->payments && $assistanceRequest->payments->count() > 0)
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Kaedah</th>
+                                        <th>No. Rujukan</th>
+                                        <th>Tarikh</th>
+                                        <th class="text-end">Jumlah (RM)</th>
+                                        @if(Auth::user()->isAdmin())<th></th>@endif
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($assistanceRequest->payments as $payment)
+                                    <tr>
+                                        <td class="text-muted">{{ $payment->id }}</td>
+                                        <td>{{ $payment->getPaymentMethodLabel() }}</td>
+                                        <td>{{ $payment->payment_reference ?? '—' }}</td>
+                                        <td>{{ $payment->payment_date->format('d/m/Y') }}</td>
+                                        <td class="text-end fw-bold" style="color:#2E7D32;">
+                                            {{ number_format($payment->amount, 2) }}
+                                        </td>
+                                        @if(Auth::user()->isAdmin())
+                                        <td>
+                                            <a href="{{ route('admin.payments.show', $payment) }}"
+                                               class="btn btn-outline-secondary btn-sm">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                        </td>
+                                        @endif
+                                    </tr>
+                                    @endforeach
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <td colspan="{{ Auth::user()->isAdmin() ? 5 : 4 }}" class="text-end fw-semibold">
+                                            Jumlah Dibayar:
+                                        </td>
+                                        <td class="text-end fw-bold" style="color:#2E7D32;font-size:1.05rem;">
+                                            RM {{ number_format($assistanceRequest->payments->sum('amount'), 2) }}
+                                        </td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    @else
+                        <p class="text-muted mb-0">
+                            <i class="fas fa-info-circle me-1"></i> Tiada rekod pembayaran lagi.
+                        </p>
+                    @endif
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
+
 </div>
 @endsection

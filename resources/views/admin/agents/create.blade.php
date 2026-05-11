@@ -4,7 +4,7 @@
 <div class="container">
     <div class="row mb-4">
         <div class="col-md-8">
-            <h1><i class="fas fa-user-plus"></i> Tambah Agen Baharu</h1>
+            <h3><i class="fas fa-user-plus"></i> Tambah Agen Baharu</h3>
             <p class="text-muted">Daftarkan kakitangan JAN yang akan bertindak sebagai agen pengesahan permohonan bantuan BERKAT.</p>
         </div>
     </div>
@@ -46,7 +46,7 @@
                                 @error('staff_ic') <span class="invalid-feedback d-block">{{ $message }}</span> @enderror
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label for="staff_email" class="form-label"><i class="fas fa-envelope"></i> Email Kakitangan <span class="text-danger">*</span></label>
+                                <label for="staff_email" class="form-label"><i class="fas fa-envelope"></i> Emel Kakitangan <span class="text-danger">*</span></label>
                                 <input type="email" class="form-control @error('staff_email') is-invalid @enderror" id="staff_email" name="staff_email" value="{{ old('staff_email') }}" required>
                                 @error('staff_email') <span class="invalid-feedback d-block">{{ $message }}</span> @enderror
                             </div>
@@ -99,7 +99,7 @@
                                 @error('office_phone') <span class="invalid-feedback d-block">{{ $message }}</span> @enderror
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label for="office_email" class="form-label"><i class="fas fa-envelope-open"></i> Email Pejabat</label>
+                                <label for="office_email" class="form-label"><i class="fas fa-envelope-open"></i> Emel Pejabat</label>
                                 <input type="email" class="form-control @error('office_email') is-invalid @enderror" id="office_email" name="office_email" value="{{ old('office_email') }}">
                                 @error('office_email') <span class="invalid-feedback d-block">{{ $message }}</span> @enderror
                             </div>

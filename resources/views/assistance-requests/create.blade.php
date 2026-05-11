@@ -5,7 +5,7 @@
     <div class="row mb-4 align-items-end">
         <div class="col-lg-8">
             <span class="page-kicker"><i class="fas fa-file-circle-plus"></i> Borang Permohonan</span>
-            <h1><i class="fas fa-file-alt"></i> Borang Permohonan Bantuan BERKAT</h1>
+            <h3><i class="fas fa-file-alt"></i> Borang Permohonan Bantuan BERKAT</h3>
             <p class="page-subtitle">Lengkapkan maklumat permohonan dan profil pemohon dengan teratur. Medan utama disusun mengikut keutamaan untuk memudahkan semakan.</p>
         </div>
     </div>
@@ -56,8 +56,8 @@
                         </div>
 
                         <div class="mb-3">
-                            <label for="agent_id" class="form-label"><i class="fas fa-user-tie"></i> Pilih Agen untuk Semakan <span class="text-danger">*</span></label>
-                            <select class="form-select @error('agent_id') is-invalid @enderror" id="agent_id" name="agent_id" required onchange="displayAgentInfo()">
+                            <label for="agent_id" class="form-label"><i class="fas fa-user-tie"></i> {{ auth()->user()->role === 'agent' ? 'Agen Yang Akan Menyemak' : 'Pilih Agen untuk Semakan' }} <span class="text-danger">*</span></label>
+                            <select class="form-select @error('agent_id') is-invalid @enderror" id="agent_id" name="agent_id" required onchange="displayAgentInfo()" {{ auth()->user()->role === 'agent' ? 'disabled' : '' }}>
                                 <option value="">Pilih Agen</option>
                                 @forelse($agents as $agent)
                                     <option value="{{ $agent->id }}" {{ old('agent_id') == $agent->id ? 'selected' : '' }}
@@ -69,13 +69,16 @@
                                         data-staff-email="{{ $agent->staff_email }}"
                                         data-staff-mobile="{{ $agent->staff_mobile }}"
                                         data-office-phone="{{ $agent->office_phone }}">
-                                        {{ $agent->user->name }} - {{ $agent->office_name }}
+                                        {{ $agent->staff_name }} - {{ $agent->office_name }}
                                     </option>
                                 @empty
                                     <option value="" disabled>Tiada agen aktif tersedia</option>
                                 @endforelse
                             </select>
-                            <div class="form-hint">Pilih agen yang akan menyemak dokumen dan kelengkapan permohonan anda.</div>
+                            @if(auth()->user()->role === 'agent' && $currentAgent)
+                                <input type="hidden" name="agent_id" value="{{ $currentAgent->id }}">
+                            @endif
+                            <div class="form-hint">{{ auth()->user()->role === 'agent' ? 'Permohonan yang anda cipta akan terus ditetapkan kepada anda untuk semakan dan syor.' : 'Pilih agen yang akan menyemak dokumen dan kelengkapan permohonan anda.' }}</div>
                             @error('agent_id') <span class="invalid-feedback d-block"><i class="fas fa-exclamation-circle"></i> {{ $message }}</span> @enderror
                         </div>
 
@@ -91,7 +94,7 @@
                                 </div>
                                 <div class="col-md-6">
                                     <div><strong>Pejabat Perakaunan:</strong> <span id="agent-accounting-office">-</span></div>
-                                    <div><strong>Email:</strong> <span id="agent-staff-email">-</span></div>
+                                    <div><strong>Emel:</strong> <span id="agent-staff-email">-</span></div>
                                     <div><strong>No. HP:</strong> <span id="agent-staff-mobile">-</span></div>
                                     <div><strong>No. Pejabat:</strong> <span id="agent-office-phone">-</span></div>
                                 </div>

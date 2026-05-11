@@ -57,13 +57,13 @@
         display: flex;
         flex-direction: column;
         justify-content: center;
-        padding: 3rem 3.25rem;
+        padding: 2.5rem 3.25rem;
         overflow-y: auto;
     }
 
     .login-logo {
-        width: 82px;
-        height: 82px;
+        width: 72px;
+        height: 72px;
         object-fit: contain;
     }
 
@@ -101,19 +101,9 @@
     .login-divider {
         border: none;
         border-top: 1px solid #f0f0f0;
-        margin: 1.25rem 0;
+        margin: 1.1rem 0;
     }
 
-    .test-accounts-panel {
-        background: #f8f8f8;
-        border: 1px solid #ebebeb;
-        border-radius: 10px;
-        padding: 0.9rem 1.1rem;
-        font-size: 0.82rem;
-        color: #555;
-    }
-
-    /* Mobile: hide image, full-width form */
     @media (max-width: 768px) {
         .login-img-panel { display: none; }
         .login-form-panel { flex: 0 0 100%; padding: 2rem 1.5rem; }
@@ -139,8 +129,8 @@
         {{-- Logo & Title --}}
         <div class="text-center mb-4">
             <img src="{{ asset('images/berkat-logo.jpeg') }}" alt="Logo BERKAT" class="login-logo mb-3">
-            <h3 class="fw-bold mb-1" style="color: var(--text-dark); font-size: 1.5rem; line-height: 1.3;">
-                Sistem Permohonan<br>Bantuan BERKAT
+            <h3 class="fw-bold mb-1" style="color: var(--text-dark); font-size: 1.4rem; line-height: 1.3;">
+                Pendaftaran Ahli Baharu
             </h3>
             <p class="text-muted mb-0" style="font-size: 0.87rem;">
                 Jabatan Akauntan Negara Malaysia
@@ -152,15 +142,30 @@
             <div class="d-flex align-items-start gap-2">
                 <i class="fas fa-info-circle mt-1" style="color: var(--primary-color); font-size: 1rem;"></i>
                 <div>
-                    <div class="banner-title">Log Masuk Pengguna</div>
-                    <div class="banner-sub">Sila masukkan emel dan kata laluan yang telah didaftarkan dalam sistem.</div>
+                    <div class="banner-title">Pendaftaran Pengguna Baru</div>
+                    <div class="banner-sub">Sila lengkapkan maklumat di bawah untuk pendaftaran.</div>
                 </div>
             </div>
         </div>
 
         {{-- Form --}}
-        <form action="{{ route('login') }}" method="POST" novalidate>
+        <form action="{{ route('register') }}" method="POST" novalidate>
             @csrf
+
+            <div class="mb-3">
+                <label for="name" class="form-label fw-semibold" style="font-size: 0.9rem;">
+                    <i class="fas fa-user"></i> Nama Penuh <span style="color: var(--danger-color);">*</span>
+                </label>
+                <input type="text"
+                    class="form-control form-control-lg @error('name') is-invalid @enderror"
+                    id="name" name="name"
+                    value="{{ old('name') }}"
+                    required
+                    placeholder="Masukkan nama penuh anda">
+                @error('name')
+                    <span class="invalid-feedback d-block"><i class="fas fa-exclamation-circle"></i> {{ $message }}</span>
+                @enderror
+            </div>
 
             <div class="mb-3">
                 <label for="email" class="form-label fw-semibold" style="font-size: 0.9rem;">
@@ -171,13 +176,13 @@
                     id="email" name="email"
                     value="{{ old('email') }}"
                     required
-                    placeholder="contoh@berkat.com">
+                    placeholder="contoh@emel.com">
                 @error('email')
                     <span class="invalid-feedback d-block"><i class="fas fa-exclamation-circle"></i> {{ $message }}</span>
                 @enderror
             </div>
 
-            <div class="mb-4">
+            <div class="mb-3">
                 <label for="password" class="form-label fw-semibold" style="font-size: 0.9rem;">
                     <i class="fas fa-lock"></i> Kata Laluan <span style="color: var(--danger-color);">*</span>
                 </label>
@@ -185,58 +190,33 @@
                     class="form-control form-control-lg @error('password') is-invalid @enderror"
                     id="password" name="password"
                     required
-                    placeholder="Masukkan kata laluan anda">
+                    placeholder="Minimum 8 aksara">
                 @error('password')
                     <span class="invalid-feedback d-block"><i class="fas fa-exclamation-circle"></i> {{ $message }}</span>
                 @enderror
             </div>
 
+            <div class="mb-4">
+                <label for="password_confirmation" class="form-label fw-semibold" style="font-size: 0.9rem;">
+                    <i class="fas fa-lock"></i> Sahkan Kata Laluan <span style="color: var(--danger-color);">*</span>
+                </label>
+                <input type="password"
+                    class="form-control form-control-lg"
+                    id="password_confirmation" name="password_confirmation"
+                    required
+                    placeholder="Ulang kata laluan">
+            </div>
+
             <button type="submit" class="btn btn-primary btn-lg w-100" style="border-radius: 10px; font-weight: 600; letter-spacing: 0.02em;">
-                <i class="fas fa-sign-in-alt"></i> Log Masuk
+                <i class="fas fa-user-plus"></i> Daftar Sebagai Ahli
             </button>
         </form>
 
-        {{-- Register link --}}
-        <div class="text-center mt-3">
-            <span class="text-muted" style="font-size: 0.87rem;">Belum ada akaun?</span>
-            <a href="{{ route('register') }}" style="color: var(--primary-color); font-size: 0.87rem; font-weight: 600;"> Daftar di sini</a>
-        </div>
-
         <hr class="login-divider">
 
-        {{-- Test accounts (collapsible) --}}
-        <div>
-            <button class="btn btn-sm w-100 d-flex align-items-center justify-content-between"
-                style="background: #f5f5f5; color: #666; border: 1px solid #e2e2e2; border-radius: 8px; font-size: 0.8rem;"
-                type="button" data-bs-toggle="collapse" data-bs-target="#testAccounts" aria-expanded="false">
-                <span><i class="fas fa-key me-1"></i> Akaun Ujian</span>
-                <i class="fas fa-chevron-down" style="font-size: 0.7rem;"></i>
-            </button>
-            <div class="collapse mt-2" id="testAccounts">
-                <div class="test-accounts-panel">
-                    <div class="row g-2">
-                        <div class="col-6">
-                            <div class="fw-semibold text-muted mb-1" style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;">Member</div>
-                            <div>member@test.com</div>
-                        </div>
-                        <div class="col-6">
-                            <div class="fw-semibold text-muted mb-1" style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;">Agen</div>
-                            <div>agent@berkat.com</div>
-                        </div>
-                        <div class="col-6">
-                            <div class="fw-semibold text-muted mb-1" style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;">JK</div>
-                            <div>jk@berkat.com</div>
-                        </div>
-                        <div class="col-6">
-                            <div class="fw-semibold text-muted mb-1" style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;">Admin</div>
-                            <div>admin@berkat.com</div>
-                        </div>
-                    </div>
-                    <div class="mt-2 pt-2" style="border-top: 1px solid #e5e5e5; color: #888;">
-                        Kata laluan semua akaun: <strong style="color: #444;">password</strong>
-                    </div>
-                </div>
-            </div>
+        <div class="text-center">
+            <span class="text-muted" style="font-size: 0.87rem;">Sudah ada akaun?</span>
+            <a href="{{ route('login') }}" style="color: var(--primary-color); font-size: 0.87rem; font-weight: 600;"> Log masuk di sini</a>
         </div>
 
     </div>

@@ -9,6 +9,8 @@ use App\Http\Controllers\Admin\RequestSubcategoryController;
 use App\Http\Controllers\Admin\AgentController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\LogoutController;
+use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\Admin\PaymentController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -17,6 +19,8 @@ Route::get('/', function () {
 // Authentication Routes
 Route::get('login', [LoginController::class, 'showLoginForm'])->name('login');
 Route::post('login', [LoginController::class, 'login']);
+Route::get('register', [RegisterController::class, 'showRegisterForm'])->middleware('guest')->name('register.form');
+Route::post('register', [RegisterController::class, 'register'])->middleware('guest')->name('register');
 Route::post('logout', [LogoutController::class, 'logout'])->name('logout');
 
 // Protected Routes
@@ -38,6 +42,11 @@ Route::middleware(['auth'])->group(function () {
         Route::resource('request-types', RequestTypeController::class);
         Route::resource('request-categories', RequestCategoryController::class);
         Route::resource('request-subcategories', RequestSubcategoryController::class);
+    });
+
+    // Admin Payments (Admin Only)
+    Route::middleware('admin')->prefix('admin')->name('admin.')->group(function () {
+        Route::resource('payments', PaymentController::class)->except(['edit', 'update']);
     });
 });
 

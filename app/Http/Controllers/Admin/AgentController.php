@@ -3,9 +3,12 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Models\Agent;
+use App\Models\AssistanceRequest;
+use App\Models\RequestType;
 use App\Models\User;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 
 class AgentController extends Controller
 {
@@ -14,18 +17,46 @@ class AgentController extends Controller
      */
     public function index(Request $request)
     {
+        $searchName      = $request->get('search_name');
+        $filterYear      = $request->get('filter_year');
+        $filterTypeId    = $request->get('filter_type_id');
+        $filterApplicant = $request->get('filter_applicant');
+
         $query = Agent::with('user');
-        $searchName = $request->get('search_name');
 
         if ($searchName) {
-            $query->whereHas('user', function ($q) use ($searchName) {
-                $q->where('name', 'like', "%{$searchName}%");
-            })->orWhere('staff_name', 'like', "%{$searchName}%");
+            $query->where(function ($q) use ($searchName) {
+                $q->whereHas('user', function ($q2) use ($searchName) {
+                    $q2->where('name', 'like', "%{$searchName}%");
+                })->orWhere('staff_name', 'like', "%{$searchName}%");
+            });
         }
 
-        $agents = $query->paginate(15);
+        if ($filterYear || $filterTypeId || $filterApplicant) {
+            $query->whereHas('verifiedRequests', function ($q) use ($filterYear, $filterTypeId, $filterApplicant) {
+                if ($filterYear) {
+                    $q->whereRaw('strftime("%Y", created_at) = ?', [$filterYear]);
+                }
+                if ($filterTypeId) {
+                    $q->where('request_type_id', $filterTypeId);
+                }
+                if ($filterApplicant) {
+                    $q->where('applicant_name', 'like', "%{$filterApplicant}%");
+                }
+            });
+        }
 
-        return view('admin.agents.index', compact('agents', 'searchName'));
+        $agents = $query->paginate(15)->withQueryString();
+
+        $availableYears = AssistanceRequest::selectRaw('strftime("%Y", created_at) as year')
+            ->distinct()->orderByDesc('year')->pluck('year');
+
+        $requestTypes = RequestType::orderBy('name')->get();
+
+        return view('admin.agents.index', compact(
+            'agents', 'searchName', 'filterYear', 'filterTypeId', 'filterApplicant',
+            'availableYears', 'requestTypes'
+        ));
     }
 
     /**
@@ -62,10 +93,11 @@ class AgentController extends Controller
             'status' => 'required|in:active,on_leave,suspended',
         ]);
 
-        $validated['registered_by'] = auth()->id();
+        $validated['registered_by'] = Auth::id();
         $validated['registered_at'] = now();
 
         Agent::create($validated);
+        User::whereKey($validated['user_id'])->update(['name' => $validated['staff_name']]);
 
         return redirect()->route('admin.agents.index')
             ->with('success', 'Agen berjaya ditambah');
@@ -102,6 +134,7 @@ class AgentController extends Controller
         ]);
 
         $agent->update($validated);
+        $agent->user()->update(['name' => $validated['staff_name']]);
 
         return redirect()->route('admin.agents.index')
             ->with('success', 'Maklumat agen berjaya dikemas kini');
