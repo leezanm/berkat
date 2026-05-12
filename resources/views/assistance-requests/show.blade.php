@@ -445,6 +445,21 @@
 
         <div class="col-lg-4">
             <div class="sticky-panel section-stack">
+                @php
+                    $role = auth()->user()->role;
+                    $st   = $assistanceRequest->status;
+                    $agentVerified = $assistanceRequest->agent_verification === 'verified';
+                    $jkDone = !empty($assistanceRequest->jk_recommendation_status);
+
+                    $showActionCard =
+                        $st === 'draft' ||
+                        in_array($st, ['approved', 'rejected']) ||
+                        ($st === 'submitted' && in_array($role, ['member', 'agent'])) ||
+                        ($st === 'in_process' && $role === 'member') ||
+                        ($st === 'in_process' && $role === 'jk' && $agentVerified) ||
+                        ($st === 'in_process' && $role === 'admin' && $agentVerified && $jkDone);
+                @endphp
+                @if($showActionCard)
                 <div class="card mb-0">
                     <div class="card-header">
                         <h5 class="mb-0"><i class="fas fa-bolt"></i> Tindakan Cepat</h5>
@@ -482,7 +497,7 @@
                                 </div>
                             @endif
 
-                            @if(in_array(auth()->user()->role, ['agent', 'admin'], true) && $assistanceRequest->status === 'submitted')
+                            @if(auth()->user()->role === 'agent' && $assistanceRequest->status === 'submitted')
                                 <div class="muted-block mt-2">
                                     <p class="mb-2"><strong>Semakan Agen</strong></p>
                                     <form action="{{ route('assistance-requests.agent-review', $assistanceRequest) }}" method="POST" class="section-stack">
@@ -505,7 +520,7 @@
                                 </div>
                             @endif
 
-                            @if(in_array(auth()->user()->role, ['jk', 'admin'], true) && $assistanceRequest->status === 'in_process' && $assistanceRequest->agent_verification === 'verified')
+                            @if(auth()->user()->role === 'jk' && $assistanceRequest->status === 'in_process' && $assistanceRequest->agent_verification === 'verified')
                                 <div class="muted-block mt-2">
                                     <p class="mb-2"><strong>Pengesyoran JK</strong></p>
                                     <form action="{{ route('assistance-requests.jk-recommendation', $assistanceRequest) }}" method="POST" class="section-stack">
@@ -529,7 +544,7 @@
                                 </div>
                             @endif
 
-                            @if(auth()->user()->role === 'admin' && $assistanceRequest->agent_verification === 'verified' && $assistanceRequest->status === 'in_process' && $assistanceRequest->jk_recommendation_status)
+                            @if(auth()->user()->role === 'admin' && $assistanceRequest->agent_verification === 'verified' && $assistanceRequest->status === 'in_process' && !empty($assistanceRequest->jk_recommendation_status))
                                 <div class="muted-block mt-2">
                                     <p class="mb-2"><strong>Keputusan Admin</strong></p>
                                     <form action="{{ route('assistance-requests.admin-decision', $assistanceRequest) }}" method="POST" class="section-stack">
@@ -559,6 +574,7 @@
                         </div>
                     </div>
                 </div>
+                @endif
 
                 @if($assistanceRequest->jk_recommendation || $assistanceRequest->jk_recommendation_status)
                     <div class="card mt-0 mb-0">

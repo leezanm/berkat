@@ -317,16 +317,14 @@ class AssistanceRequestController extends Controller
      */
     public function verifyByAgent(Request $request, AssistanceRequest $assistanceRequest)
     {
-        if (!in_array(Auth::user()->role, ['agent', 'admin'], true)) {
+        if (Auth::user()->role !== 'agent') {
             abort(403);
         }
 
-        if (Auth::user()->role === 'agent') {
-            $currentAgent = Agent::where('user_id', Auth::id())->first();
-            if (!$currentAgent || $assistanceRequest->agent_id !== $currentAgent->id) {
-                return redirect()->route('assistance-requests.show', $assistanceRequest)
-                    ->with('error', 'Permohonan ini tidak ditetapkan kepada anda.');
-            }
+        $currentAgent = Agent::where('user_id', Auth::id())->first();
+        if (!$currentAgent || $assistanceRequest->agent_id !== $currentAgent->id) {
+            return redirect()->route('assistance-requests.show', $assistanceRequest)
+                ->with('error', 'Permohonan ini tidak ditetapkan kepada anda.');
         }
 
         if (!in_array($assistanceRequest->status, ['submitted', 'in_process'], true)) {
@@ -367,7 +365,7 @@ class AssistanceRequestController extends Controller
      */
     public function recommendByJk(Request $request, AssistanceRequest $assistanceRequest)
     {
-        if (!in_array(Auth::user()->role, ['jk', 'admin'], true)) {
+        if (Auth::user()->role !== 'jk') {
             abort(403);
         }
 
