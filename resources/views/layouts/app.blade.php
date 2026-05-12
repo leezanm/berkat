@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'Sistem Permohonan Bantuan BERKAT')</title>
+    <link rel="icon" type="image/png" href="/favicon.png">
 
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -78,6 +79,8 @@
             box-shadow: 0 10px 40px rgba(23, 23, 23, 0.06);
             border-bottom: 1px solid rgba(23, 23, 23, 0.06);
             padding: 1.05rem 0;
+            position: relative;
+            z-index: 1050;
         }
 
         .navbar-brand {
@@ -263,7 +266,7 @@
         .stat-card {
             padding: 1.5rem;
             border-radius: 24px;
-            box-shadow: var(--shadow-sm);
+            box-shadow: 0 4px 20px rgba(23, 23, 23, 0.10), 0 1px 4px rgba(23,23,23,0.06);
             position: relative;
             overflow: hidden;
             transition: all 0.3s ease;
@@ -278,12 +281,13 @@
 
         .stat-card:hover {
             transform: translateY(-6px);
-            box-shadow: var(--shadow-md);
+            box-shadow: 0 12px 36px rgba(23, 23, 23, 0.16), 0 2px 8px rgba(23,23,23,0.08);
         }
 
         .stat-card-dark {
             background: linear-gradient(145deg, #191919 0%, #2a2a2a 100%);
             color: var(--white);
+            box-shadow: 0 6px 24px rgba(0, 0, 0, 0.30), 0 1px 4px rgba(0,0,0,0.18);
         }
 
         .stat-card-dark::before {
@@ -302,6 +306,7 @@
             color: var(--white);
             position: relative;
             z-index: 1;
+            box-shadow: 0 6px 24px rgba(255, 87, 34, 0.38), 0 1px 4px rgba(255,87,34,0.18);
         }
 
         .stat-card-orange::before {
@@ -320,11 +325,12 @@
         .stat-card-light {
             background: linear-gradient(180deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 247, 243, 0.96) 100%);
             border: 1px solid var(--border-light);
-            box-shadow: 0 12px 28px rgba(23, 23, 23, 0.04);
+            box-shadow: 0 4px 18px rgba(23, 23, 23, 0.09), 0 1px 4px rgba(23,23,23,0.05);
         }
 
         .stat-card-light:hover {
             border-color: var(--primary-color);
+            box-shadow: 0 10px 32px rgba(255, 87, 34, 0.14), 0 2px 6px rgba(23,23,23,0.07);
         }
 
         .card-header {
@@ -554,6 +560,7 @@
             border-radius: 18px;
             padding: 0.4rem;
             overflow: hidden;
+            z-index: 1055;
         }
 
         .dropdown-item {
@@ -798,11 +805,14 @@
                                 <a class="nav-link" href="{{ route('admin.dashboard') }}">Dashboard </a>
                             </li>
                         @endif
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ route('assistance-requests.index') }}">Permohonan</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ route('assistance-requests.create') }}">Permohonan Baru</a>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="permohonanDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Permohonan
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="permohonanDropdown">
+                                <li><a class="dropdown-item" href="{{ route('assistance-requests.index') }}"><i class="fas fa-list me-2"></i>Senarai Permohonan</a></li>
+                                <li><a class="dropdown-item" href="{{ route('assistance-requests.create') }}"><i class="fas fa-plus-circle me-2"></i>Permohonan Baru</a></li>
+                            </ul>
                         </li>
                         {{-- menu pentadbiran --}}
                         @if(Auth::user()->role === 'admin')
@@ -819,6 +829,9 @@
                                 <li><a class="dropdown-item" href="{{ route('admin.request-types.index') }}">Urus Jenis Bantuan</a></li>
                                 <li><a class="dropdown-item" href="{{ route('admin.request-categories.index') }}">Urus Kategori Bantuan</a></li>
                                 <li><a class="dropdown-item" href="{{ route('admin.request-subcategories.index') }}">Urus Sub-Kategori & Amaun</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="{{ route('admin.reports.monthly') }}"><i class="fas fa-chart-bar me-2"></i>Laporan Bulanan</a></li>
+                                <li><a class="dropdown-item" href="{{ route('admin.reports.payment') }}"><i class="fas fa-money-bill-wave me-2"></i>Laporan Pembayaran</a></li>
                             </ul>
                         </li>
                         @endif

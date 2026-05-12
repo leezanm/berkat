@@ -11,6 +11,7 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\LogoutController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Admin\PaymentController;
+use App\Http\Controllers\Admin\ReportController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -47,6 +48,9 @@ Route::middleware(['auth'])->group(function () {
     // Admin Payments (Admin Only)
     Route::middleware('admin')->prefix('admin')->name('admin.')->group(function () {
         Route::resource('payments', PaymentController::class)->except(['edit', 'update']);
+        // Laporan
+        Route::get('reports/monthly', [ReportController::class, 'monthly'])->name('reports.monthly');
+        Route::get('reports/payment', [ReportController::class, 'payment'])->name('reports.payment');
     });
 });
 

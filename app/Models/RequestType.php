@@ -12,4 +12,9 @@ class RequestType extends Model
     {
         return $this->hasMany(RequestCategory::class);
     }
+
+    public function assistanceRequests()
+    {
+        return $this->hasMany(AssistanceRequest::class);
+    }
 }
