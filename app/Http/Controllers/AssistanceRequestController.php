@@ -9,7 +9,10 @@ use App\Models\AssistanceRequestChild;
 use App\Models\RequestType;
 use App\Models\RequestCategory;
 use Illuminate\Http\Request;
+use App\Mail\NewAssistanceRequestMail;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 
 class AssistanceRequestController extends Controller
@@ -307,6 +310,17 @@ class AssistanceRequestController extends Controller
             'submitted_at' => now(),
             'agent_verification' => 'pending'
         ]);
+
+        // Hantar notifikasi emel kepada agen yang ditugaskan
+        $assistanceRequest->load('agent.user');
+        if ($assistanceRequest->agent && $assistanceRequest->agent->user) {
+            try {
+                Mail::to($assistanceRequest->agent->user->email)
+                    ->send(new NewAssistanceRequestMail($assistanceRequest));
+            } catch (\Throwable $e) {
+                Log::warning('Gagal hantar emel notifikasi kepada agen: ' . $e->getMessage());
+            }
+        }
 
         return redirect()->route('assistance-requests.show', $assistanceRequest)
             ->with('success', 'Permohonan telah dihantar untuk semakan');
